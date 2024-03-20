@@ -23,4 +23,13 @@ The following were some initial goals or visions behind this project:
    
 Now all of the above has been accomplished. Our goal right now is to train a model, but not before the data is further processed and we have defined our full feature engineering pipeline.    
 
+One of the most pivotal decisions I had to make for this project is: how am I going to encode or represent the phrase data in such a way that I can train an accurate machine learning model on it? Many thoughts and ideas about this popped into my head that I had to ponder. They included:
+   -- using a 1-1 function to map bags of words to unique numbers using Cantor's rule, which basically means the set of words that make up a phrase but not the ordering become important, and we will have many numbers to represent all the unique sets of words that make up our phrase space. This also means we would want to devise a scheme to treat these numbers as categorical variables rather than ordinal numbers, which probably means we would have to either one-hot or label encode the presence of a given number.
+   -- this brings us to our next question: will the relevant columns share the same phrase space or will they have different phrase spaces thus requiring even more columns?
+      --- my instinct is to avoid creating feature columns for each original column we are getting the phrases from. Why? There are two main reasons:
+            A) we don't want too many columns in our dataframe as it requires more computational time and energy
+            B) we assume that information that would normally be in one column could actually be stored in another, but the information is the same at the end of the day. More
+            important than if the summary of a given category contains a given phrase is if the summary of all categories contain a given phrase as that means the original job             posting contained that phrase. We are simply using ChatGPT to identify phrases from the original text that are notable and/or descriptive enough and put them into              our predefined categories, but whether ChatGPT put a given piece of information under 'responsibilities' or 'job_function' shouldn't change how the model learns,               or at least we won't worry about that for now in order to simplify the problem we are trying to solve. 
+         
+
 
