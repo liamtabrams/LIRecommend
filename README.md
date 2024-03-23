@@ -31,6 +31,26 @@ One of the most pivotal decisions I had to make for this project is: how am I go
             B) we assume that information that would normally be in one column could actually be stored in another, but the information is the same at the end of the day. More important than if the summary of a given category contains a given phrase is if the summary of all categories contain a given phrase as that means the original job posting contained that phrase. We are simply using ChatGPT to identify phrases from the original text that are notable and/or descriptive enough and put them into our predefined categories, but whether ChatGPT put a given piece of information under 'responsibilities' or 'job_function' shouldn't change how the model learns, or at least we won't worry about that for now in order to simplify the problem we are trying to solve. 
       --- my mentor recommended starting as simply as possible with TFIDF vectorization which I've considered doing, but in the end to get SOMETHING working I ended up doing the following:
          ---- I used a pretrained sentence transformer model called gte-base (see doc here: https://huggingface.co/thenlper/gte-base) to get embeddings for all my phrases , gte-base, which is a BERT-based model. For different sets of columns arranged based on shared corpus, meaning most of the columns like responsibilities and goals/objectives shared a corpus called 'commom' but some others like city had their own corpus, we calculated an embeddings map of all the phrases found in that set of columns, then performed KMeans clustering for a chosen number of clusters, giving cluster labels for all the phrases for that set of columns. Then, the number of each cluster label in each row is counted and that number is recorded in a column that gets added for each cluster. That is the trick behind most of the feature engineering I ended up carrying out. For the categorical label columns that didn't involve using a sentence transformer to bin items in the phrase space, like state, I simply made one-hot encodings of all the different categorical values found in the column. With my choices of cluster numbers for the corpi I binned, the data I initally passed to my models, which were a Decision Tree, Random Forest, and XGBoost had over 700 columns! This seems like too much and improved feature engineering would help solve this issue, but for now we will accept how our data is and try other algorithms. 
+
+Not only could having 700 columns be detrimental to model performance, but it also makes the feature engineering step take way too long- in my case 16 minutes running it on a Jupyter notebook with a CPU, for only a 107 rows dataframe.
+
+Anyway, I have evaluated various models on my small dataset (with the 700 or so columns) using two simple metrics: accuracy and mean absolute error. They are the following from best performing to worst performing: 
+linear regression, accuracy: .68, MAE: .45
+random forest classifier, accuracy: .59, MAE: .55
+decision tree, accuracy: .59, MAE: .63
+KNN Classifier, accuracy: .55, MAE: .5
+KNN Regressor, accuracy: .55, MAE: .52
+Support Vector Machine, accuracy: .55
+random forest regression, accuracy: .5, MAE: .53
+XGBoost, accuracy: .5, MAE: .59
+Naive Bayes, accuracy: .45, MAE: .64
+
+Then I tried dropping certain columns from my dataframe. The first experiment was to drop columns with extreme class inbalance. Basically columns where all but one of the datapoints fall in the majority class. I tried running the same algorithms on the dataframe with fewer columns to compare results to before. it turned out that the linear regression ended up doing much worse, and the Random Forest did the same.
+removing columns with extreme class imbalance:
+linear regression, accuracy: .45, MAE: .74
+random forest, accuracy: .59, MAE: .55
+
+
          
 
 
