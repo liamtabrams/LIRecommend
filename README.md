@@ -52,6 +52,8 @@ random forest, accuracy: .59, MAE: .55
 
 Then, I tried changing the number of common clusters defined in the feature engineering step. 300 and 650 clusters both yielded substantially worse results for the linear regression predictions than 500. However, 400 yielded an accuracy of nearly .64 with an MAE just over .42. So with 400 clusters, we got a better MAE but worse accuracy using rounded predictions from a linear regression model than we did using 500 clusters. 
 
+Interestingly, the MAE from the Random Forest model also went down to just over .45, though the accuracy stayed at .59. We also perform a grid search on Random Forest Regressor, to see if there is anything gained from using that algorithm with 400 common cluster columns in our dataset. 
+
 
          
 
