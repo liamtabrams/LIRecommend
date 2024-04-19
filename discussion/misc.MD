@@ -11,13 +11,21 @@ Not only could having 700 columns be detrimental to model performance, but it al
 
 Anyway, I have evaluated various models on my small dataset (with the 700 or so columns) using two simple metrics: accuracy and mean absolute error. They are the following from best performing to worst performing: 
 linear regression, accuracy: .68, MAE: .45
+
 random forest classifier, accuracy: .59, MAE: .55
+
 decision tree, accuracy: .59, MAE: .63
+
 KNN Classifier, accuracy: .55, MAE: .5
+
 KNN Regressor, accuracy: .55, MAE: .52
+
 Support Vector Machine, accuracy: .55
+
 random forest regression, accuracy: .5, MAE: .53
+
 XGBoost, accuracy: .5, MAE: .59
+
 Naive Bayes, accuracy: .45, MAE: .64
 
 Then I tried dropping certain columns from my dataframe. The first experiment was to drop columns with extreme class inbalance. Basically columns where all but one of the datapoints fall in the majority class. I tried running the same algorithms on the dataframe with fewer columns to compare results to before. it turned out that the linear regression ended up doing much worse, and the Random Forest did the same.
