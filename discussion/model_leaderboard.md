@@ -15,8 +15,13 @@ FE approach 2 - perform basic TFIDF vectorization on the 'posting_text' column a
 FE approach 3 - combine mostly FE approach 2 with early steps to generate the dataframe in FE approach 1, ultimately combining the TFIDF matrices with the min_ and max_salary columns from the dataframe that FE approach 1 gets applied to.  
 
 HGBC - HistGradientBoostingClassifier
+
 LinReg - Linear Regression
+
 RFC - Random Forest Classifier
+
 DT - Decision tree
+
 SVC - Support Vector Machine
+
 GNB - GaussianNaiveBayes
