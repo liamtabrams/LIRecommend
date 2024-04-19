@@ -5,6 +5,8 @@
 |       |   Row 3     |   Row 3  |   Row 3  |   Row 3  |
 |       |   Row 4     |   Row 4  |   Row 4  |   Row 4  |
 |       |   Row 5     |   Row 5  |   Row 5  |   Row 5  |
+|  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
+|  RG   |   Any  |   N/A  |   25%    |   1.25   |
 
 Glossary
 
@@ -25,3 +27,7 @@ DT - Decision tree
 SVC - Support Vector Machine
 
 GNB - GaussianNaiveBayes
+
+MCP - Majority Class Picker
+
+RG - Random Guesser
