@@ -2,7 +2,7 @@
 |-------|------------|---------------------|----------|----------|
 |  HGBC |   2     |   N/A |   72.7%  |   .318 |
 | LinReg |   3    |   N/A |  63.6%  |   .480 |
-|       |   Row 3     |   Row 3  |   Row 3  |   Row 3  |
+|    RFC   |   Any    |   {'max_depth': None, 'max_features': 'auto', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}  |   59.1%  |   .454  |
 |       |   Row 4     |   Row 4  |   Row 4  |   Row 4  |
 |       |   Row 5     |   Row 5  |   Row 5  |   Row 5  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
