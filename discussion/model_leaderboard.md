@@ -26,6 +26,8 @@ DT - Decision tree
 
 SVC - Support Vector Machine
 
+KNNR - K Nearest Neighbors Regressor
+
 GNB - GaussianNaiveBayes
 
 MCP - Majority Class Picker
