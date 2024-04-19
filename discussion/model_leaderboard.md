@@ -3,8 +3,7 @@
 |  HGBC |   2     |   N/A |   72.7%  |   .318 |
 | LinReg |   3    |   N/A |  63.6%  |   .480 |
 |    RFC   |   Any    |   {'max_depth': None, 'max_features': 'auto', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}  |   59.1%  |   .454  |
-|   XGB    |   1     |   {'colsample_bytree': 1.0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 200, 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 1.0}
-Accuracy: 0.5909090909090909  |   59.1%  |   .5  |
+|   XGB    |   1     |   {'colsample_bytree': 1.0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 200, 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 1.0} |   59.1%  |   .5  |
 |       |   Row 5     |   Row 5  |   Row 5  |   Row 5  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
 |  RG   |   Any  |   N/A  |   25%    |   1.25   |
