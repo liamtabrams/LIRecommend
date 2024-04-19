@@ -13,7 +13,7 @@ The following were some initial goals or visions behind this project:
 
 - for the project within the scope of the bootcamp, the natural and healthy goal is to just try to build something that perfoms A). 
 
-- initially I was thinking of a tool or product that could work with postings from different websites/platforms, but for the purpose of data collection and standardization, I went on to restrict my focus to scraping exlusively LinkedIn Jobs postings.
+- initially I was thinking of a tool or product that could work with postings from different websites/platforms, but for the purpose of data collection and standardization, I went on to restrict my focus to scraping exclusively LinkedIn Jobs postings.
 
 - So the high level overview of what I am doing for the bootcamp assignment is the following:
 - -  1. Manually go through job postings on LinkedIn, rate the job 0-3, 0 being completely outside of desire or radar, for me this would be a bus driver position for example, and 3 being extremely desirable, like an ML Engineering job that pays 160K a year. (Obviously there will be considerable biases here as my mentor pointed out, but they might be interesting to explore. And the goal is to in fact provide a POC for a methodology behind LinkedIn being able to model it's user's tendencies with more specificity, perhaps/hopefully suggesting better performance than LinkedIn currently, though defining performance is important and such a claim would require extensive testing (hundreds of users) to substantiate.) We will make a spreadsheet for the url for the job posting in one column and the rating in the next.
