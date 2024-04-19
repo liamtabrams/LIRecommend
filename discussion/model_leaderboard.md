@@ -6,6 +6,7 @@
 |   XGB    |   1     |   {'colsample_bytree': 1.0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 200, 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 1.0} |   59.1%  |   .5  |
 |    KNNR   |   1     |   n_neighbors=5  |   59.1%  |   .518  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
+| GNB |  1  |   N/A   |   36.4%   |    .773   |
 |  RG   |   Any  |   N/A  |   25%    |   1.25   |
 
 # Glossary
