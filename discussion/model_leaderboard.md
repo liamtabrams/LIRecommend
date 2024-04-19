@@ -8,7 +8,7 @@
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
 |  RG   |   Any  |   N/A  |   25%    |   1.25   |
 
-#Glossary
+# Glossary
 
 FE approach 1 - use CHATGPT to summarize postings in the form of JSON files, then perform clustering on phrases in the training set and create cluster count features. Dataframe has salary features and cluster count features, as well as city and state features.
 
