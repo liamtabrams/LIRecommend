@@ -1,3 +1,5 @@
+**Cross validation will be needed to more confidently assess and rank each of these models**
+
 | Model | FE Approach | Special hyperparams | accuracy | MAE |
 |-------|------------|---------------------|----------|----------|
 |  HGBC |   2     |   default |   72.7%  |   .318 |
