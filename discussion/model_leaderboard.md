@@ -5,6 +5,7 @@
 |    RFC   |   Any    |   {'max_depth': None, 'max_features': 'auto', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}  |   59.1%  |   .454  |
 |   XGB    |   1     |   {'colsample_bytree': 1.0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 200, 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 1.0} |   59.1%  |   .5  |
 |    KNNR   |   1     |   n_neighbors=5  |   59.1%  |   .518  |
+|    LinReg   |   2     |   N/A |   54.5%  |   .481  |
 |    RFR   |    2     |  (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300)   |   50%  |   .502  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
 | GNB |  1  |   N/A   |   36.4%   |    .773   |
