@@ -9,6 +9,7 @@
 |    LinReg   |   2     |   N/A |   54.5%  |   .481  |
 |    DT   |   1     |   default |   54.5%  |   .5  |
 |    RFR   |    2     |  (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300)   |   50%  |   .502  |
+|    HGBC   |    1     |  N/A   |   50%  |   .682  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
 | GNB |  1  |   N/A   |   36.4%   |    .773   |
 |  RG   |   Any  |   N/A  |   25%    |   1.25   |
