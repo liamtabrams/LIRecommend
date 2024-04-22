@@ -7,6 +7,7 @@
 |    KNNR   |   1     |   n_neighbors=5  |   59.1%  |   .518  |
 |    LinReg   |   1     |   N/A  |   59.1%  |   .614  |
 |    LinReg   |   2     |   N/A |   54.5%  |   .481  |
+|    XGB   |   2     |   default |   54.5%  |   .5  |
 |    DT   |   1     |   default |   54.5%  |   .5  |
 |    KNNC   |   1     |   n_neighbors=5 |   54.5%  |   .5  |
 |    SVC   |   1     |   default |   54.5%  |   N/A  |
