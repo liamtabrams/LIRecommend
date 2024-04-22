@@ -18,6 +18,7 @@
 |    DT   |    2     |  default   |   50%  |   .636  |
 |    HGBC   |    1     |  default   |   50%  |   .682  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
+|  DT  |   3  |   default  |   40.9%  |   .773   |
 | GNB |  1  |   default   |   36.4%   |    .773   |
 |  RG   |   Any  |   N/A  |   25%    |   1.25   |
 
