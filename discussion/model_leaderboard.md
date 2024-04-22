@@ -21,7 +21,7 @@ FE approach 3 - combine mostly FE approach 2 with early steps to generate the da
 
 HGBC - HistGradientBoostingClassifier
 
-LinReg - Linear Regression
+LinReg - Linear Regression (note that predictions are rounded before calculating accuracy)
 
 RFC - Random Forest Classifier
 
