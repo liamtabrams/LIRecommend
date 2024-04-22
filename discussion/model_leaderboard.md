@@ -8,6 +8,7 @@
 |    LinReg   |   1     |   N/A  |   59.1%  |   .614  |
 |    LinReg   |   2     |   N/A |   54.5%  |   .481  |
 |    DT   |   1     |   default |   54.5%  |   .5  |
+|    KNNC   |   1     |   n_neighbors=5 |   54.5%  |   .5  |
 |    SVC   |   1     |   N/A |   54.5%  |   N/A  |
 |    RFR   |    2     |  (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300)   |   50%  |   .502  |
 |    HGBC   |    1     |  N/A   |   50%  |   .682  |
@@ -36,6 +37,8 @@ DT - Decision tree
 SVC - Support Vector Machine
 
 KNNR - K Nearest Neighbors Regressor
+
+KNNC - K Nearest Neighbors Classifier
 
 GNB - GaussianNaiveBayes
 
