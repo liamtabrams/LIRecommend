@@ -14,6 +14,7 @@
 |    KNNC   |   1     |   n_neighbors=5 |   54.5%  |   .5  |
 |    SVC   |   1 & 2    |   default |   54.5%  |   N/A  |
 |    RFR   |    2     |  (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300)   |   50%  |   .502  |
+| GNB |  2  |   default   |   50%   |    .545   |
 |    DT   |    2     |  default   |   50%  |   .636  |
 |    HGBC   |    1     |  default   |   50%  |   .682  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
