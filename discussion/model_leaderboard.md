@@ -1,6 +1,6 @@
 | Model | FE Approach | Special hyperparams | accuracy | MAE |
 |-------|------------|---------------------|----------|----------|
-|  HGBC |   2     |   N/A |   72.7%  |   .318 |
+|  HGBC |   2     |   default |   72.7%  |   .318 |
 | LinReg |   3    |   N/A |  63.6%  |   .480 |
 |    RFC   |   Any    |   {'max_depth': None, 'max_features': 'auto', 'min_samples_leaf': 1, 'min_samples_split': 2, 'n_estimators': 300}  |   59.1%  |   .454  |
 |   XGB    |   1     |   {'colsample_bytree': 1.0, 'learning_rate': 0.1, 'max_depth': 3, 'min_child_weight': 1, 'n_estimators': 200, 'reg_alpha': 0, 'reg_lambda': 1, 'subsample': 1.0} |   59.1%  |   .5  |
@@ -9,12 +9,12 @@
 |    LinReg   |   2     |   N/A |   54.5%  |   .481  |
 |    DT   |   1     |   default |   54.5%  |   .5  |
 |    KNNC   |   1     |   n_neighbors=5 |   54.5%  |   .5  |
-|    SVC   |   1     |   N/A |   54.5%  |   N/A  |
+|    SVC   |   1     |   default |   54.5%  |   N/A  |
 |    RFR   |    2     |  (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300)   |   50%  |   .502  |
 |    DT   |    2     |  default   |   50%  |   .636  |
-|    HGBC   |    1     |  N/A   |   50%  |   .682  |
+|    HGBC   |    1     |  default   |   50%  |   .682  |
 |  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
-| GNB |  1  |   N/A   |   36.4%   |    .773   |
+| GNB |  1  |   default   |   36.4%   |    .773   |
 |  RG   |   Any  |   N/A  |   25%    |   1.25   |
 
 # Glossary
