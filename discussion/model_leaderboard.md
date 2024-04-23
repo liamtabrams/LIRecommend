@@ -38,6 +38,8 @@
 | KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 |
 | DT |   3    |   default |  39.1%  |   .682 |
 
+With feature engineering approach 3, Linear Regression did the best, and it's accuracy and error scores had by far the least variance when I did the cross validation.
+
 
 # Glossary
 
