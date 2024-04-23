@@ -1,4 +1,4 @@
-**Cross validation will be needed to more confidently assess and rank each of these models**
+**Cross validation will be needed to more confidently assess and rank each of these models. The following are results for one train test split at random_seed=42. I will make another table for averages of cross validation below this**
 
 | Model | FE Approach | Special hyperparams | accuracy | MAE |
 |-------|------------|---------------------|----------|----------|
