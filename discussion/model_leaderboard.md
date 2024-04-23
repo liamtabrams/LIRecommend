@@ -31,6 +31,7 @@
 |-------|------------|---------------------|----------|----------|
 | LinReg |   3    |   N/A |  66.4%  |   .474 |
 | HGBC |   3    |   default |  58.2%  |   .455 |
+| XGB |   3    |   default |  55.5%  |   .482 |
 | RFC |   3    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  53.6%  |   .527 |
 | DT |   3    |   default |  39.1%  |   .682 |
 
