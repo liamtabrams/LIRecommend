@@ -44,14 +44,14 @@ With feature engineering approach 3, Linear Regression did the best, and it's ac
 
 | Model | FE Approach | Special hyperparams | accuracy | MAE |
 |-------|------------|---------------------|----------|----------|
-| LinReg |   3    |   N/A |  66.4%  |   .474 |
-| HGBC |   3    |   default |  58.2%  |   .455 |
-| XGB |   3    |   default |  55.5%  |   .482 |
+| LinReg |   1    |   N/A |  26.4%  |   >1000000000 |
+| HGBC |   1    |   default |  46.4%  |   .691 |
+| XGB |   1    |   default |  57.3%  |   .545 |
 | RFC |   3    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  53.6%  |   .527 |
 | SVC |   3    |   default |  50.9%  |   N/A |
 | KNNR |   3    |   n_neighbors=5 |  49.1%  |   .571 |
 | KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 |
-| DT |   3    |   default |  39.1%  |   .682 |
+| DT |   1    |   default |  45.5%  |   .700 |
 
 With feature engineering approach 1, Linear Regression did the best, and it's accuracy and error scores had by far the least variance when I did the cross validation.
 
