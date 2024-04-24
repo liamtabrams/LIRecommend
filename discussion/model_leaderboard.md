@@ -33,7 +33,7 @@
 | HGBC |   3    |   default |  58.2%  |   .455 |
 | XGB |   3    |   default |  55.5%  |   .482 |
 | RFC |   3    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  53.6%  |   .527 |
-| LogReg |   3    |   N/A |  51.8%  |   .582 |
+| LogReg |   3    |   max_iter=10000 |  51.8%  |   .582 |
 | SVC |   3    |   default |  50.9%  |   N/A |
 | KNNR |   3    |   n_neighbors=5 |  49.1%  |   .571 |
 | KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 |
