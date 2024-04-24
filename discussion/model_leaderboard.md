@@ -56,6 +56,19 @@ With feature engineering approach 3, Linear Regression did the best, and it's ac
 
 With feature engineering approach 1, XGB did the best. Linear Regression blew up, making predictions in the billions. We see it's 5-fold cross val accuracy is virtually on par with random guessing. Also very few models did better than a Majority Class Picking Model which predicts 2 no matter what. This suggests we either need to completely abandon FE approach 1, tune it, or try to expand on it to make it better, focusing on why Linear Regression is acting up. Our data up to this point suggests FE approach 3 trumps FE approach 1. We still need cross-val scores for FE approach 2. 
 
+| Model | FE Approach | Special hyperparams | accuracy | MAE |
+|-------|------------|---------------------|----------|----------|
+| HGBC |   2    |   default |  58.2%  |   .455 |
+| KNNC |   2    |   n_neighbors=5 |  55.5%  |   .518 |
+| RFC |   2    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  54.5%  |   .527 |
+| GNB |  2  |   default   |   54.5%   |    .555   |
+| SVC |   2    |   default |  52.7%  |   N/A |
+| LinReg |   2    |   N/A |  51.8%  |   .502 |
+| RFR |   2    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  50.9%  |   .549 |
+| XGB |   2    |   default |  50%  |   .555 |
+| DT |   2    |   default |  46.4%  |   .664 |
+| KNNR |   2    |   n_neighbors=5 |  40%  |   .735 |
+
 
 # Glossary
 
