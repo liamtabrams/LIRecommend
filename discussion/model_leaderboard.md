@@ -33,6 +33,7 @@
 | HGBC |   3    |   default |  58.2%  |   .455 |
 | XGB |   3    |   default |  55.5%  |   .482 |
 | RFC |   3    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  53.6%  |   .527 |
+| LogReg |   3    |   N/A |  51.8%  |   .582 |
 | SVC |   3    |   default |  50.9%  |   N/A |
 | KNNR |   3    |   n_neighbors=5 |  49.1%  |   .571 |
 | KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 |
@@ -61,6 +62,7 @@ With feature engineering approach 1, XGB did the best. Linear Regression blew up
 | HGBC |   2    |   default |  58.2%  |   .455 |
 | KNNC |   2    |   n_neighbors=5 |  55.5%  |   .518 |
 | RFC |   2    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  54.5%  |   .527 |
+| LogReg |   2    |   max_iter=1000 |  54.5%  |   .536 |
 | GNB |  2  |   default   |   54.5%   |    .555   |
 | SVC |   2    |   default |  52.7%  |   N/A |
 | LinReg |   2    |   N/A |  51.8%  |   .502 |
@@ -81,6 +83,8 @@ FE approach 3 - combine mostly FE approach 2 with early steps to generate the da
 HGBC - HistGradientBoostingClassifier
 
 LinReg - Linear Regression (note that predictions are rounded before calculating accuracy)
+
+LogReg - Logistic Regression
 
 RFC - Random Forest Classifier
 
