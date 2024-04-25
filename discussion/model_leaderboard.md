@@ -108,4 +108,4 @@ MCP - Majority Class Picker
 
 RG - Random Guesser
 
-RR - Accuracy of attempt at manually reproducing original ratings after 2 months. This helps us measure drift + inherent subjectivity of the raings. If wait time is significantly reduced, this can give us an upper bound on accuracy allowed by the inherent subjectivity of the labelling. 
+RR - Accuracy of attempt at manually reproducing original ratings after 2 months. This helps us measure drift + inherent subjectivity of the ratings. If wait time is significantly reduced, accuracy of this exercise can give us an upper bound on accuracy for ML models allowed by the inherent subjectivity of the labelling. 
