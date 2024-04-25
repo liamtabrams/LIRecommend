@@ -27,17 +27,17 @@
 
 **Results of 5-fold cross validation using same train-test splits after processing data with FE Approach 3. Included are random_seeds 42, 95, 13, 21, and 507. **
 
-| Model | FE Approach | Special hyperparams | accuracy | MAE |
-|-------|------------|---------------------|----------|----------|
-| LinReg |   3    |   N/A |  66.4%  |   .474 |
-| HGBC |   3    |   default |  58.2%  |   .455 |
-| XGB |   3    |   default |  55.5%  |   .482 |
-| RFC |   3    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  53.6%  |   .527 |
-| LogReg |   3    |   max_iter=10000 |  51.8%  |   .582 |
-| SVC |   3    |   default |  50.9%  |   N/A |
-| KNNR |   3    |   n_neighbors=5 |  49.1%  |   .571 |
-| KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 |
-| DT |   3    |   default |  39.1%  |   .682 |
+| Model | FE Approach | Special hyperparams | accuracy | MAE | MSE |
+|-------|------------|---------------------|----------|----------|----------|
+| LinReg |   3    |   N/A |  66.4%  |   .474 | .401 |
+| HGBC |   3    |   default |  58.2%  |   .455 | .527 |
+| XGB |   3    |   default |  55.5%  |   .482 | .555 |
+| RFC |   3    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  53.6%  |   .527 | .655 |
+| LogReg |   3    |   max_iter=10000 |  51.8%  |   .582 | .782 |
+| SVC |   3    |   default |  50.9%  |   N/A | N/A |
+| KNNR |   3    |   n_neighbors=5 |  49.1%  |   .571 | .529 |
+| KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 | .791 |
+| DT |   3    |   default |  39.1%  |   .682 |  1.009 |
 
 With feature engineering approach 3, Linear Regression did the best, and it's accuracy and error scores had by far the least variance when I did the cross validation.
 
