@@ -36,8 +36,10 @@
 | LogReg |   3    |   max_iter=10000 |  51.8%  |   .582 | .782 |
 | SVC |   3    |   default |  50.9%  |   N/A | N/A |
 | KNNR |   3    |   n_neighbors=5 |  49.1%  |   .571 | .529 |
+|  MCP  |   Any  |   N/A  |   46.7%  |   .654   | .897 |
 | KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 | .791 |
 | DT |   3    |   default |  39.1%  |   .682 |  1.009 |
+|  RG   |   Any  |   N/A  |   25%    |   1.25   | 2.5 |
 
 With feature engineering approach 3, Linear Regression did the best, and it's accuracy and error scores had by far the least variance when I did the cross validation.
 
