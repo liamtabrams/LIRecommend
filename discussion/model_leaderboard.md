@@ -20,26 +20,27 @@
 | KNNC |  3  |   n_neighbors=5   |   50%   |    .591   |
 |    DT   |    2     |  default   |   50%  |   .636  |
 |    HGBC   |    1     |  default   |   50%  |   .682  |
-|  MCP  |   Any  |   N/A  |   46.7%  |   .654   |
+|  MCP  |   N/A  |   N/A  |   46.7%  |   .654   |
 | GNB |  1  |   default   |   36.4%   |    .773   |
 |  DT  |   3  |   default  |   31.8%  |   .818   |
-|  RG   |   Any  |   N/A  |   25%    |   1.25   |
+|  RG   |   N/A  |   N/A  |   25%    |   1.25   |
 
 **Results of 5-fold cross validation using same train-test splits after processing data with FE Approach 3. Included are random_seeds 42, 95, 13, 21, and 507. **
 
 | Model | FE Approach | Special hyperparams | accuracy | MAE | MSE |
 |-------|------------|---------------------|----------|----------|----------|
 | LinReg |   3    |   N/A |  66.4%  |   .474 | .401 |
+| RR |   N/A    |   N/A |  62.6%  |   .374 | .374 |
 | HGBC |   3    |   default |  58.2%  |   .455 | .527 |
 | XGB |   3    |   default |  55.5%  |   .482 | .555 |
 | RFC |   3    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  53.6%  |   .527 | .655 |
 | LogReg |   3    |   max_iter=10000 |  51.8%  |   .582 | .782 |
 | SVC |   3    |   default |  50.9%  |   N/A | N/A |
 | KNNR |   3    |   n_neighbors=5 |  49.1%  |   .571 | .529 |
-|  MCP  |   Any  |   N/A  |   46.7%  |   .654   | .897 |
+|  MCP  |   N/A  |   N/A  |   46.7%  |   .654   | .897 |
 | KNNC |   3    |   n_neighbors=5 |  46.4%  |   .609 | .791 |
 | DT |   3    |   default |  39.1%  |   .682 |  1.009 |
-|  RG   |   Any  |   N/A  |   25%    |   1.25   | 2.5 |
+|  RG   |   N/A  |   N/A  |   25%    |   1.25   | 2.5 |
 
 With feature engineering approach 3, Linear Regression did the best, and it's accuracy and error scores had by far the least variance when I did the cross validation.
 
@@ -106,3 +107,5 @@ GNB - GaussianNaiveBayes
 MCP - Majority Class Picker
 
 RG - Random Guesser
+
+RR - Accuracy of attempt at manually reproducing original ratings after 2 months
