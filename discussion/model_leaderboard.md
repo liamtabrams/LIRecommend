@@ -47,6 +47,7 @@ With feature engineering approach 3, Linear Regression did the best, and it's ac
 |-------|------------|---------------------|----------|----------|
 | XGB |   1    |   default |  57.3%  |   .545 |
 | RFC |   1    |   (max_depth=None, max_features='auto', min_samples_leaf=1, min_samples_split=2, n_estimators=300) |  55.5%  |   .564 |
+| LogReg |   1    |   max_iter=10000 |  54.5%  |   .527 |
 | SVC |   1    |   default |  50.9%  |   N/A |
 | KNNC |   1    |   n_neighbors=5 |  48.2%  |   .691 |
 | KNNR |   1    |   n_neighbors=5 |  47.3%  |   .658 |
