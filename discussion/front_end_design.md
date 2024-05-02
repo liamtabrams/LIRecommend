@@ -1,0 +1,1 @@
+For the capstone project, I want to essentially demo my own user instance of a product/service which allows users to archive descriptions of job postings into bins based on ratings they give them and have them returned recommendations for unviewed job postings and other insights obtained from  
