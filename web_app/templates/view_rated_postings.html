@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Rated Job Postings</title>
+</head>
+<body>
+    <h1>Rated Job Postings</h1>
+    <ul>
+        {% for job in job_postings %}
+            <li>{{ job.url }} - Rated: {{ job.rating }} stars</li>
+        {% endfor %}
+    </ul>
+    <a href="/">Back to Home</a>
+</body>
+</html>

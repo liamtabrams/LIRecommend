@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+</head>
+<body>
+    <h1>Welcome, {{ session['username'] }}</h1>
+    <ul>
+        <li><a href="/collect-data">Collect more data</a></li>
+        <li><a href="/view-rated-postings">View rated job postings</a></li>
+        <li><a href="/insights">Insights</a></li>
+        <li><a href="/recommend">Recommend</a></li>
+    </ul>
+    <a href="/logout">Logout</a>
+</body>
+</html>
