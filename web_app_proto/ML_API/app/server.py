@@ -160,18 +160,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 def read_root():
     return {'message': "Liam's Job Preference Model API"}
 
-
-def scp_file_from_container(source_path, destination_path):
-    # Construct the scp command
-    scp_command = [
-        "scp",
-        f"{source_path}",
-        destination_path
-    ]
-
-    # Execute the scp command
-    subprocess.run(scp_command)
-
 # Landing page endpoint
 '''@app.get("/", response_class=HTMLResponse)
 async def landing_page(request: Request):
