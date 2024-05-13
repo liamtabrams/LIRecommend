@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Rating Prediction</title>
+    <style>
+        /* CSS styles */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #output {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Job Rating Prediction (0/3)</h2>
+        <label for="url">Enter job posting URL:</label>
+        <input type="text" id="url" name="url" placeholder="https://www.example.com/job-posting">
+        <button onclick="predict()">Predict Rating</button>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function predict() {
+            var urlInput = document.getElementById("url").value;
+            var data = { "features": [urlInput] };
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("output").innerText = "Predicted Rating: " + data.prediction;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("output").innerText = "Error occurred. Please try again.";
+            });
+        }
+    </script>
+</body>
+</html>

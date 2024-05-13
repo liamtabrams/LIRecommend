@@ -1,0 +1,8 @@
+scikit-learn
+fastapi
+numpy
+uvicorn
+pandas
+requests
+bs4
+openai
