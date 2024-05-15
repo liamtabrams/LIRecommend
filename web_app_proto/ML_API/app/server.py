@@ -305,4 +305,4 @@ def train_linreg(dataset_path):
   # Serialise model and dump on disk
   joblib.dump(model, 'app/models/linreg_clf.joblib')
 
-  return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mae_avg': mse_avg, 'mse_std': mse_std} 
+  return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mse_avg': mse_avg, 'mse_std': mse_std} 
