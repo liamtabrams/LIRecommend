@@ -39,7 +39,7 @@
         button:hover {
             background-color: #0056b3;
         }
-        #output {
+        #output, #accuracy_avg, #accuracy_std, #mae_avg, #mae_std, #mse_avg, #mse_std {
             margin-top: 20px;
         }
     </style>
@@ -60,9 +60,41 @@
         <button onclick="collectData()">Submit</button>
         <button onclick="retrainModel()">Retrain Model</button> <!-- Added Retrain Model button -->
         <div id="output"></div>
+        <div id="accuracy_avg"></div>
+        <div id="accuracy_std"></div>
+        <div id="mae_avg"></div>
+        <div id="mae_std"></div>
+        <div id="mse_avg"></div>
+        <div id="mse_std"></div>
     </div>
 
     <script>
+        function retrainModel() {
+            fetch('/retrain-model', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update HTML elements with the returned values
+                document.getElementById('accuracy_avg').innerText = `Accuracy Average: ${data.accuracy_avg}`;
+                document.getElementById('accuracy_std').innerText = `Accuracy Standard Deviation: ${data.accuracy_std}`;
+                document.getElementById('mae_avg').innerText = `Mean Absolute Error Average: ${data.mse_avg}`;
+                document.getElementById('mae_std').innerText = `Mean Absolute Error Standard Deviation: ${data.mse_std}`;
+                document.getElementById('mse_avg').innerText = `Mean Squared Error Average: ${data.mse_avg}`;
+                document.getElementById('mse_std').innerText = `Mean Squared Error Standard Deviation: ${data.mse_std}`;
+                // Optionally, you can display a success message to the user
+                alert("Model retrained successfully");
+            })
+            .catch(error => {
+                // Handle errors
+                console.error('Error:', error);
+                // Optionally, display an error message to the user
+                alert("An error occurred. Please try again.");
+            });
+        }
         function collectData() {
             var urlInput = document.getElementById("url").value;
             var ratingInput = document.getElementById("rating").value;
@@ -86,25 +118,6 @@
             .catch(error => {
                 console.error('Error:', error);
                 document.getElementById("output").innerText = "Error occurred. Please try again.";
-            });
-        }
-
-        function retrainModel() {
-            fetch('/retrain-model', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Handle response if needed
-                console.log(data);
-                alert("Model retrained successfully");
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert("An error occurred. Please try again.");
             });
         }
     </script>

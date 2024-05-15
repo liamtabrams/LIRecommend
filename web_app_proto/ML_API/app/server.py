@@ -217,7 +217,8 @@ def append_datapoint(data: dict):
 
 @app.post('/retrain-model')
 def retrain_model():
-    train_linreg('app/dataset/myDataset.csv')
+    results = train_linreg('app/dataset/myDataset.csv')
+    return results
 
 '''in this code we will use the entire dataset as a training set for the linear
 regression model'''
@@ -245,8 +246,13 @@ def train_linreg(dataset_path):
   # Make a scorer from the custom scoring function
   custom_scorer = make_scorer(custom_scoring_function, greater_is_better=True)
   # Helper function to display key metrics for model performance.
-  def display_scores(scores):
-    print('Accuracy of rounded and clipped predictions: results of 10-fold cross val')
+  def display_scores(scores, metric='rounded_accuracy'):
+    if metric == 'rounded_accuracy':
+      print('Accuracy of rounded and clipped predictions: results of 10-fold cross val')
+    if metric == 'neg_mse':
+      print('Neg mean squared error scores from 10-fold cross val')
+    if metric == 'neg_mae':
+      print('Neg mean absolute error scores from 10-fold cross val')
     print("Scores:", scores)
     print("Mean:", scores.mean())
     print("Standard Deviation:", scores.std())
@@ -279,10 +285,24 @@ def train_linreg(dataset_path):
   model = LinearRegression()
   model.fit(X_train, y_train)
   model_scores = cross_val_score(model, X_train, y_train, scoring=custom_scorer, cv = 10)
-  display_scores(model_scores)
+  display_scores(model_scores, 'rounded_accuracy')
+  accuracy_avg = model_scores.mean()
+  accuracy_std = model_scores.std()
+
+  model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv = 10)
+  display_scores(model_scores, 'neg_mse')
+  mse_avg = -1*model_scores.mean()
+  mse_std = model_scores.std()
+
+  model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_absolute_error', cv = 10)
+  display_scores(model_scores, 'neg_mae')
+  mae_avg = -1*model_scores.mean()
+  mae_std = model_scores.std()
 
   # Save the TFIDF model to a file
   joblib.dump(tfidf_vectorizer, 'app/models/tfidf_vectorizer.joblib')
 
   # Serialise model and dump on disk
   joblib.dump(model, 'app/models/linreg_clf.joblib')
+
+  return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mae_avg': mse_avg, 'mse_std': mse_std} 
