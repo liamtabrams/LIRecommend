@@ -2,13 +2,13 @@
 
 ## Summary of important/notable files and folders
 
-web_app_proto/ML_API is where I am currently developing the FastAPI application I am deploying inside a Docker container
+-**web_app_proto/ML_API** is where I am currently developing the FastAPI application I am deploying inside a Docker container
 
-parse_li_jobs.ipynb is the notebook I did most of the early prototyping a preliminary data analyis in. It is quite a massive notebook and will likely need to be broken up into multiple notebooks so that the reader isn't overwhelmed having to scroll through this one notebook. 
+-**parse_li_jobs.ipynb** is the notebook I did most of the early prototyping a preliminary data analyis in. It is quite a massive notebook and will likely need to be broken up into multiple notebooks so that the reader isn't overwhelmed having to scroll through this one notebook. 
 
-LIRecommend_ModelEvaluation.ipynb is where I did model evaluation for a large handful of different architectures and witnessed how they compared to each other in terms of accuracy with three different feature engineering approaches. The results of those experiments are shown in tables in discussion/model_leaderboard.md   
+-**LIRecommend_ModelEvaluation.ipynb** is where I did model evaluation for a large handful of different architectures and witnessed how they compared to each other in terms of accuracy with three different feature engineering approaches. The results of those experiments are shown in tables in discussion/model_leaderboard.md   
 
-pre-trained_models is an, I feel, aptly named folder for, well, pretrained models, ones that I decide to checkin because they are options for pre-loaded models in the deployed app or due to some other reason. I will try to avoid checking things in just because I feel like it and I will also make an effort to trim the fat, clean up presentation, remove unnecessary or unused code wherever warranted in this repo.
+-**pre-trained_models** is an, I feel, aptly-named folder for, well, pretrained models, ones that I decide to checkin because they are options for pre-loaded models in the deployed app or due to some other reason. I will try to avoid checking things in just because I feel like it and I will also make an effort to trim the fat, clean up presentation, remove unnecessary or unused code wherever warranted in this repo.
 
 ## The Vision and Overview
 
