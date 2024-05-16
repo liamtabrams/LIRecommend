@@ -11,10 +11,12 @@
         }
         .container {
             max-width: 600px;
+            height: 500px; /* Fixed height for the container */
             margin: 0 auto;
             padding: 20px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            overflow-y: auto; /* Vertical scrolling for the container */
         }
         label {
             font-weight: bold;
@@ -55,6 +57,13 @@
             margin-top: 10px;
             line-height: 1.6;
         }
+        .scrollable {
+            overflow-x: auto; /* Horizontal scrolling for the table */
+        }
+        .table-container {
+            max-height: 200px; /* Fixed height for the table container */
+            overflow: auto; /* Scrollable table container */
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -63,6 +72,10 @@
             padding: 8px;
             border: 1px solid #ddd;
             text-align: left;
+        }
+        .collapsible-content {
+            display: none;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -95,26 +108,34 @@
             There is inherent subjectivity in the application of the rating system and everyone will have their own unique corner cases which make modeling difficult. However, based on experiments of a user's drift over a 2-month period, the upper bound for accuracy is around 65% while the lower bounds for mean squared and absolute error are around .35. This means that a model achieving at least 60% accuracy and MAE and MSE's of less than .5 is doing quite well.
         </p>
 
-        <label for="sortColumn">Select column to sort by:</label>
-        <select id="sortColumn">
-            <option value="posting_text">Posting Text</option>
-            <option value="min_salary">Min Salary</option>
-            <option value="max_salary">Max Salary</option>
-            <option value="rating">Rating</option>
-        </select>
-        <button onclick="fetchDataset()">View Dataset</button>
+    </div>
 
-        <table id="dataset-table">
-            <thead>
-                <tr>
-                    <th>Posting Text</th>
-                    <th>Min Salary</th>
-                    <th>Max Salary</th>
-                    <th>Rating</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+    <label for="sortColumn">Select column to sort by:</label>
+    <select id="sortColumn">
+        <option value="posting_text">Posting Text</option>
+        <option value="min_salary">Min Salary</option>
+        <option value="max_salary">Max Salary</option>
+        <option value="rating">Rating</option>
+    </select>
+    <button onclick="fetchDataset()">View Dataset</button>
+
+    <button onclick="toggleCollapsible()">Toggle Dataset View</button>
+    <div id="collapsible-content" class="collapsible-content">
+        <div class="table-container">
+            <div class="scrollable">
+                <table id="dataset-table">
+                    <thead>
+                        <tr>
+                            <th>Posting Text</th>
+                            <th>Min Salary</th>
+                            <th>Max Salary</th>
+                            <th>Rating</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -191,6 +212,15 @@
                 console.error('Error:', error);
                 alert("An error occurred while fetching the dataset.");
             });
+        }
+
+        function toggleCollapsible() {
+            var content = document.getElementById("collapsible-content");
+            if (content.style.display === "none" || content.style.display === "") {
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
         }
     </script>
 </body>
