@@ -6,8 +6,8 @@ import pandas as pd
 import time
 import requests
 from bs4 import BeautifulSoup
-#from fastapi.templating import Jinja2Templates as templates
-#from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates as templates
+from fastapi.responses import HTMLResponse
 from openai import OpenAI
 import os
 import json
@@ -168,12 +168,12 @@ async def landing_page(request: Request):
 # Predict Salary page
 '''@app.get("/predict-rating", response_class=HTMLResponse)
 async def predict_rating(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse("index.html", {"request": request})'''
 
 # Collect Data page
 @app.get("/collect-data", response_class=HTMLResponse)
 async def collect_data(request: Request):
-    return templates.TemplateResponse("collect_data.html", {"request": request})'''
+    return templates.TemplateResponse("collect_data.html", {"request": request})
 
 @app.post('/predict')
 def predict(data: dict):
@@ -286,8 +286,8 @@ def train_linreg(dataset_path):
   model.fit(X_train, y_train)
   model_scores = cross_val_score(model, X_train, y_train, scoring=custom_scorer, cv = 10)
   display_scores(model_scores, 'rounded_accuracy')
-  accuracy_avg = model_scores.mean()
-  accuracy_std = model_scores.std()
+  accuracy_avg = model_scores.mean()*100
+  accuracy_std = model_scores.std()*100
 
   model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv = 10)
   display_scores(model_scores, 'neg_mse')
@@ -306,3 +306,10 @@ def train_linreg(dataset_path):
   joblib.dump(model, 'app/models/linreg_clf.joblib')
 
   return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mse_avg': mse_avg, 'mse_std': mse_std} 
+
+@app.get("/dataset")
+def get_dataset(column: str = None):
+    dataset_df = pd.read_csv('app/dataset/myDataset.csv')
+    if column and column in dataset_df.columns:
+        dataset_df = dataset_df.sort_values(by=column)
+    return dataset_df.to_dict(orient='records')
