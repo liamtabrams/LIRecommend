@@ -10,6 +10,10 @@ RUN pip install --no-cache-dir -r /code/requirements.txt
 # Copy the application code
 COPY ./app /code/app
 
+# Create the directories for scraped text and JSON salary files
+RUN mkdir -p /code/app/user_input/scraped_text
+RUN mkdir -p /code/app/user_input/salariesJSON
+
 # Copy the static files
 COPY ./static /code/static
 
