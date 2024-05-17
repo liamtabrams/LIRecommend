@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collect Data</title>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
     <style>
         /* CSS styles */
         body {
             font-family: Arial, sans-serif;
         }
+       
         .container {
             max-width: 600px;
             height: 500px; /* Fixed height for the container */
@@ -77,6 +79,12 @@
             display: none;
             overflow: hidden;
         }
+        table.dataTable thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f2f2f2;
+            z-index: 100;
+        }
     </style>
 </head>
 <body>
@@ -109,21 +117,13 @@
         </p>
 
     </div>
-
-    <label for="sortColumn">Select column to sort by:</label>
-    <select id="sortColumn">
-        <option value="posting_text">Posting Text</option>
-        <option value="min_salary">Min Salary</option>
-        <option value="max_salary">Max Salary</option>
-        <option value="rating">Rating</option>
-    </select>
     <button onclick="fetchDataset()">View Dataset</button>
 
     <button onclick="toggleCollapsible()">Toggle Dataset View</button>
     <div id="collapsible-content" class="collapsible-content">
         <div class="table-container">
             <div class="scrollable">
-                <table id="dataset-table">
+                <table id="dataset-table" class="display">
                     <thead>
                         <tr>
                             <th>Posting Text</th>
@@ -138,6 +138,8 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script>
         function retrainModel() {
             fetch('/retrain-model', {
@@ -193,19 +195,18 @@
         }
 
         function fetchDataset() {
-            var sortColumn = document.getElementById("sortColumn").value;
-            fetch(`/dataset?column=${sortColumn}`)
+            fetch(`/dataset`)
             .then(response => response.json())
             .then(data => {
-                var tableBody = document.getElementById("dataset-table").getElementsByTagName("tbody")[0];
-                tableBody.innerHTML = ""; // Clear existing table rows
-
+                var table = $('#dataset-table').DataTable();
+                table.clear();
                 data.forEach(row => {
-                    var newRow = tableBody.insertRow();
-                    newRow.insertCell(0).innerText = row.posting_text;
-                    newRow.insertCell(1).innerText = row.min_salary;
-                    newRow.insertCell(2).innerText = row.max_salary;
-                    newRow.insertCell(3).innerText = row.rating;
+                    table.row.add([
+                        row.posting_text,
+                        row.min_salary,
+                        row.max_salary,
+                        row.rating
+                    ]).draw();
                 });
             })
             .catch(error => {
@@ -222,6 +223,19 @@
                 content.style.display = "none";
             }
         }
+
+        $(document).ready(function() {
+            $('#dataset-table').DataTable({
+                "paging": true,
+                "scrollY": "200px",
+                "scrollCollapse": true,
+                "autoWidth": true,
+                "pageLength": 10,
+                "lengthChange": false
+            });
+            // Show the table by default
+            document.getElementById("collapsible-content").style.display = "block";
+        });
     </script>
 </body>
 </html>

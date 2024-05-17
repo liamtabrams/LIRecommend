@@ -7,7 +7,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 from fastapi.templating import Jinja2Templates as templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from openai import OpenAI
 import os
 import json
@@ -308,8 +308,7 @@ def train_linreg(dataset_path):
   return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mse_avg': mse_avg, 'mse_std': mse_std} 
 
 @app.get("/dataset")
-def get_dataset(column: str = None):
-    dataset_df = pd.read_csv('app/dataset/myDataset.csv')
-    if column and column in dataset_df.columns:
-        dataset_df = dataset_df.sort_values(by=column)
-    return dataset_df.to_dict(orient='records')
+async def get_dataset():
+    df = pd.read_csv("app/dataset/myDataset.csv")
+    data = df.to_dict(orient="records")
+    return JSONResponse(content=data)
