@@ -4,10 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landing Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        p {
+            margin: 0 20px;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-top: 10px;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to LIRecommend!</h1>
-    <p>This tool provides rating predictions for job postings from LinkedIn. Simply enter the URL of a job posting, and the tool will predict the rating the user would give to the job. You can also collect data by submitting job URLs along with ratings to improve the prediction model. Please note that this tool only works when the job posting is opened in a new tab forcing the URL to start with "https://www.linkedin.com/jobs/view/" rather than "https://www.linkedin.com/jobs/collections/recommended/" which you get from viewing in LinkedIn's recommendation page. </p>
+    <p>This tool provides rating predictions for job postings from LinkedIn. Simply enter the URL of a job posting, and the tool will predict the rating the user would give to the job. You can also collect data by submitting job URLs along with ratings to improve the prediction model. Please note that this tool only works when the job posting is opened in a new tab forcing the URL to start with "https://www.linkedin.com/jobs/view/" rather than "https://www.linkedin.com/jobs/collections/recommended/" which you get from viewing in LinkedIn's recommendation page.</p>
     <ul>
         <li><a href="/static/index.html">Predict Rating</a></li>
         <li><a href="/static/collect_data.html">Collect Data</a></li>

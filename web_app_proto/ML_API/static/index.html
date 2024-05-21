@@ -8,16 +8,34 @@
         /* CSS styles */
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+            position: relative; /* Add this to enable absolute positioning of the button */
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
+        .main-container {
+            display: flex;
+            width: 90%; /* Increase the width */
+            max-width: 1400px; /* Increase the max-width */
             border: 1px solid #ccc;
             border-radius: 5px;
+            overflow: hidden;
+        }
+        .left-container, .right-container {
+            flex: 1;
+            padding: 20px;
+        }
+        .left-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
         label {
             font-weight: bold;
+            margin-bottom: 5px;
         }
         input[type="text"] {
             width: 100%;
@@ -34,6 +52,7 @@
             border: none;
             border-radius: 3px;
             cursor: pointer;
+            margin-top: 10px;
         }
         button:hover {
             background-color: #0056b3;
@@ -41,26 +60,52 @@
         #output {
             margin-top: 7px;
             margin-bottom: 7px;
+            padding: 10px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
         }
-        .container img {
+        .right-container img {
             width: 100%;
             height: auto;
-            max-height: 690px; /* Adjust this value to change the height */
-            margin-bottom: 0px;
+            display: block;
+            max-height: 100%;
+        }
+        .home-link, .collect-data-link {
+            position: absolute;
+            left: 10px;
+            font-size: 14px;
+        }
+        .home-link {
+            top: 10px;
+        }
+        .collect-data-link {
+            top: 40px; /* Positioning the Collect Data link under Home link */
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+        a:hover {
+            color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Image section -->
-        <img src="/static/vizz.png" alt="Image Description">
-
-        <h2>Job Rating Prediction (0/3)</h2>
-        <label for="url">Enter job posting URL:</label>
-        <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
-        <button onclick="predict()">Predict Rating</button>
-        <div id="output"></div>
-        <a href="/static/landing_page.html"><button>Go to Home Page</button></a>
+    <a href="/static/landing_page.html" class="home-link">Home</a>
+    <a href="/static/collect_data.html" class="collect-data-link">Collect Data</a>
+    <div class="main-container">
+        <div class="left-container">
+            <h2>Job Rating Prediction (0/3)</h2>
+            <label for="url">Enter job posting URL:</label>
+            <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
+            <button onclick="predict()">Predict Rating</button>
+            <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
+        </div>
+        <div class="right-container">
+            <img src="/static/vizz.png" alt="Image Description">
+        </div>
     </div>
 
     <script>
@@ -76,11 +121,16 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById("output").innerText = "Predicted Rating: " + data.prediction;
+                var predictedRating = document.getElementById("predicted-rating");
+                predictedRating.innerText = data.prediction;
+                var output = document.getElementById("output");
+                output.style.backgroundColor = data.color;
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById("output").innerText = "Error occurred. Please try again.";
+                var output = document.getElementById("output");
+                output.innerText = "Error occurred. Please try again.";
+                output.style.backgroundColor = "red"; // Set background color to red for error
             });
         }
     </script>

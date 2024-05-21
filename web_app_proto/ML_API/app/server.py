@@ -11,6 +11,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from openai import OpenAI
 import os
 import json
+import math
 
 def scrape_from_link(url):
   dir_path = "app/user_input/scraped_text"
@@ -175,6 +176,33 @@ async def predict_rating(request: Request):
 async def collect_data(request: Request):
     return templates.TemplateResponse("collect_data.html", {"request": request})
 
+def get_rating_color(rating):
+    """
+    Returns a hex color code for a given rating between 0 and 3.
+    
+    0 corresponds to red, 3 corresponds to green.
+    Intermediate values are interpolated between these colors.
+    
+    Parameters:
+        rating (float): A rating between 0 and 3.
+        
+    Returns:
+        str: A hex color code.
+    """
+    # Clamp the rating to ensure it's within the expected range
+    rating = max(0, min(3, rating))
+    
+    # Calculate the green component (0 for rating 0, 255 for rating 3)
+    green = int((rating / 3) * 120) + 49
+
+    blue = int((rating / 3) * 19) + 49
+    
+    # Calculate the red component (255 for rating 0, 0 for rating 3)
+    red = 255 - green
+    
+    # Return the color as a hex code
+    return f'#{red:02x}{green:02x}{blue:02x}'
+
 @app.post('/predict')
 def predict(data: dict):
     features = np.array(data['features']).reshape(1, -1).flatten().tolist()
@@ -189,7 +217,8 @@ def predict(data: dict):
     new_df = pd.DataFrame({key: [value] for key, value in datapoint.items() if key != 'posting_text'})
     X_test = pd.concat([new_df, X_test_tfidf_df], axis=1)
     prediction = model.predict(X_test)
-    return {'prediction': prediction[0]}
+    color = get_rating_color(prediction)
+    return {'prediction': prediction[0], 'color': color}
     
 
 @app.post('/submit-data')
