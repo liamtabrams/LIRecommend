@@ -30,6 +30,7 @@ Follow the official Docker installation guide for your specific Linux distributi
 
    ```bash
    docker load -i lirecommend.tar
+   ```
 
    This command loads the Docker image from the myapp.tar file into your local Docker repository.
 
@@ -39,6 +40,7 @@ Follow the official Docker installation guide for your specific Linux distributi
 
    ```bash
    docker run -d -p 8080:80 lirecommend:latest
+   ```
 
    -d: Run the container in detached mode (in the background).
    -p 8080:80: Map port 8080 on your host to port 80 in the container. Adjust the ports if necessary.
