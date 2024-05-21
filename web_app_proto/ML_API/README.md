@@ -32,7 +32,7 @@ Follow the official Docker installation guide for your specific Linux distributi
    docker load -i lirecommend.tar
    ```
 
-   This command loads the Docker image from the myapp.tar file into your local Docker repository.
+   This command loads the Docker image from the lirecommend.tar file into your local Docker repository.
 
 3. **Run the Docker Container**
 
