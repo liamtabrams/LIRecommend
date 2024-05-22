@@ -36,3 +36,5 @@ response = requests.post(url, data)
 print(response.json()) '''should print something like {'accuracy_avg': 59.324324324324316, 'accuracy_std': 11.96772051990481, 'mae_avg': 0.5564076573245048, 'mae_std': 0.12388109200691212, 'mse_avg': 0.627168855240376, 'mse_std': 0.48269694288801385}'''
 ```
 
+See client.py. You can run that script on your local machine while the app is running to test that you have access to the API endpoints of the app. Just make sure you are using the correct base URL for the APIs. You will have to modify the URL's used in client.py which are all hard-coded if you chose something other than 8000:8000 for the -p option when you launched the app. 
+
