@@ -19,7 +19,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),  # Logs to console (stdout)
-        logging.FileHandler("/app/logs/app.log")  # Logs to a file
+        logging.FileHandler("app/logs/app.log")  # Logs to a file
     ]
 )
 
