@@ -1,6 +1,6 @@
 # API Usage
 
-To interact with LIRecommend using the APIs programmatically rather than the graphical web app, one can use the json and requests libraries in Python in order to get and post data from and to the API endpoints using JSON format. See the below example code for sending a job posting URL to the predict endpoint, assuming the application was launched using 'docker run --name <name> -p 8000:8000 lirecommend'. 
+To interact with LIRecommend using the APIs programmatically rather than the graphical web app, one can use the json and requests libraries in Python in order to get and post data from and to the API endpoints using JSON format. See the below example code for sending a job posting URL to the predict endpoint, assuming the application was launched using 'docker run --name "container-name" -p 8000:8000 lirecommend'. 
 
 ```python
 import json
