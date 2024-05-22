@@ -39,15 +39,15 @@ Follow the official Docker installation guide for your specific Linux distributi
    After loading the image, start the Docker container using the following command:
 
    ```bash
-   docker run -d -p 8080:80 lirecommend:latest
+   docker run --name lirecommend-app -p 8000:8000 lirecommend
    ```
 
-   -d: Run the container in detached mode (in the background).
-   -p 8080:80: Map port 8080 on your host to port 80 in the container. Adjust the ports if necessary.
+   --name: The desired name for the Docker container; 'lirecommend-app' provided as example name. 
+   -p 8000:8000: Map port 8000 on your host to port 8000 in the container. Adjust the ports if necessary.
 
 3. **Access the Application**
 
-    Open a Chrome browser (another browser MIGHT work but is not supported by LIRecommend currently) and go to http://localhost:8080 to access the application.
+    Open a Chrome browser (another browser MIGHT work but is not supported by LIRecommend currently) and go to http://localhost:8000/static/landing_page.html to access the application.
 
 
 

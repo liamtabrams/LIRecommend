@@ -1,19 +1,33 @@
-from fastapi import FastAPI, Request
-from fastapi.staticfiles import StaticFiles
-import joblib
+import os
+import time
+import json
+import requests
+import logging
 import numpy as np
 import pandas as pd
-import time
-import requests
+import joblib
 from bs4 import BeautifulSoup
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates as templates
 from fastapi.responses import HTMLResponse, JSONResponse
 from openai import OpenAI
-import os
-import json
-import math
+
+# Configure the logging
+logging.basicConfig(
+    level=logging.DEBUG,  # Capture all log levels
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(),  # Logs to console (stdout)
+        logging.FileHandler("/app/logs/app.log")  # Logs to a file
+    ]
+)
+
+logger = logging.getLogger(__name__)
 
 def scrape_from_link(url):
+  logger.info(f"Received URL {url} from user")
+  
   dir_path = "app/user_input/scraped_text"
   posting_ind = len(os.listdir(dir_path))
   text_file_path = f"app/user_input/scraped_text/posting{posting_ind}.txt"
@@ -24,8 +38,10 @@ def scrape_from_link(url):
       html = resp.text
       # Parse the HTML content
       soup = BeautifulSoup(html, 'html.parser')
+      logger.info(f"Successfully parsed {url}")
 
     else:
+      logger.debug(f"{resp.status_code} error code occurred scraping from {url}")
       time.sleep(1)
       # request again
       resp = requests.get(fr"{url}")
@@ -34,8 +50,10 @@ def scrape_from_link(url):
         html = resp.text
         # Parse the HTML content
         soup = BeautifulSoup(html, 'html.parser')
+        logger.info(f"Successfully parsed {url}")
 
       else:
+        logger.debug(f"{resp.status_code} error code occurred 2nd attempt at scraping from {url}")
         print("Failed to retrieve job posting from", fr"{url}")
 
     # get position, company, location, pay
@@ -43,6 +61,8 @@ def scrape_from_link(url):
     # Remove elements with only whitespace
     filtered_list = [string for string in x if string.strip()]
 
+    print("Extracting posting metadata")
+    logger.info(f"Extracting posting metadata from {url}")
     for i in filtered_list:
       if i.find('Join now') != -1 and filtered_list[filtered_list.index(i) + 1].find('Sign in') != -1:
         position = filtered_list[filtered_list.index(i) + 2]
@@ -64,6 +84,10 @@ def scrape_from_link(url):
     file.write(f"company is {company}\n")
     file.write(f"location is {location}\n")
     file.write(f"salary is {salary}\n\n")
+    logger.info(f"position is {position}\n")
+    logger.info(f"company is {company}\n")
+    logger.info(f"location is {location}\n")
+    logger.info(f"salary is {salary}\n\n")
 
     #get seniority level, employment type, job function, and industries
     spans = soup.find_all('span', {'class': "description__job-criteria-text description__job-criteria-text--criteria"})
@@ -74,6 +98,7 @@ def scrape_from_link(url):
         #print(span.parent.find_all("h3", {'class': "description__job-criteria-subheader"}))
       value = span.contents[0].strip()
       file.write(f"{field} is {value}\n")
+      logger.info(f"{field} is {value}\n")
     file.write("\n")
 
     # get main body text
@@ -89,10 +114,13 @@ def scrape_from_link(url):
     for line in lines:
       characters_per_line.append(len(line))
 
+    logger.info("Extracting posting body")
+    
     body_len = max(characters_per_line)
     body_idx = characters_per_line.index(body_len)
     body_text = lines[body_idx]
     file.write(body_text)
+  logger.info(f"done scraping text from {url}")
   return text_file_path, posting_ind
 
 def generate_salary_json_file(posting_ind, salary_val):
@@ -124,8 +152,12 @@ def generate_salary_json_file(posting_ind, salary_val):
   return json_file_path
 
 def generate_dataset_input(url):
-  text_file_path, posting_ind = scrape_from_link(url)
-  print(os.listdir("app/user_input/scraped_text"))
+  try:
+    text_file_path, posting_ind = scrape_from_link(url)
+  except Exception as e:
+    logger.error(f"Encountered error {e} when trying to scrape from {url}")
+    return
+  
   with open(text_file_path, "r") as f:
     file_contents = f.read()
     f.seek(0)
@@ -134,13 +166,21 @@ def generate_dataset_input(url):
   datapoint_dict = {}
   salary_line = lines[3]
   salary_val = salary_line.strip("\n").strip("salary is ")
-  json_file_path = generate_salary_json_file(posting_ind, salary_val)
+  logger.info(f"attempting to generate JSON salary file for {url} using ChatGPT API")
+  try:
+    json_file_path = generate_salary_json_file(posting_ind, salary_val)
+    logger.info(f"Successfully created JSON salary file at {json_file_path} relative to the working directory of the container")
+  except Exception as e:
+    logger.error(f"Encountered error {e} when trying to generate JSON salary file")
+    return
+
   datapoint_dict['posting_text'] = file_contents
   with open(json_file_path, 'r') as json_file:
     json_data = json.load(json_file)
   min_salary = json_data["salary_min"]
   max_salary = json_data["salary_max"]
   dataset_df = pd.read_csv('app/dataset/myDataset.csv')
+  logger.info("reading in dataset to determine salary column modes")
   min_salary_mode = dataset_df['min_salary'].mode()[0]
   max_salary_mode = dataset_df['max_salary'].mode()[0]
   if min_salary == "N/A":
@@ -150,15 +190,18 @@ def generate_dataset_input(url):
   datapoint_dict['min_salary'] = min_salary
   datapoint_dict['max_salary'] = max_salary
 
+  logger.info(f"successfully generated dataset input from {url}")
   return datapoint_dict
 
 app = FastAPI()
 
 # Mount the static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
+logger.info("mounted the '/static' directory to StaticFiles in FastAPI app")
 
 @app.get('/')
 def read_root():
+    logger.info("Root endpoint called")
     return {'message': "Liam's Job Preference Model API"}
 
 # Landing page endpoint
@@ -205,26 +248,38 @@ def get_rating_color(rating):
 
 @app.post('/predict')
 def predict(data: dict):
+    logger.info("Predict endpoint called")
     features = np.array(data['features']).reshape(1, -1).flatten().tolist()
-    datapoint = generate_dataset_input(features[0])
+    url = features[0]
+    logger.info(f"{url} successfully sent to backend")
+    datapoint = generate_dataset_input(url)
+    logger.info("generated datapoint")
     model = joblib.load('app/models/linreg_clf.joblib')
     tfidf_vect = joblib.load('app/models/tfidf_vectorizer.joblib')
+    logger.info("loaded pre-trained Linear Regression and TFIDF Vectorizer models")
     # Step 3: Transform the test data using the fitted vectorizer
     X_test_tfidf = tfidf_vect.transform([datapoint['posting_text']])
+    logger.info("transformed datapoint's posting_text into TFIDF matrix")
     # Convert TF-IDF matrix to DataFrame
     X_test_tfidf_df = pd.DataFrame(X_test_tfidf.toarray(), columns=tfidf_vect.get_feature_names_out())
+    logger.info("transformed the matrix into a dataframe")
     # Create DataFrame excluding 'posting_text' column
     new_df = pd.DataFrame({key: [value] for key, value in datapoint.items() if key != 'posting_text'})
     X_test = pd.concat([new_df, X_test_tfidf_df], axis=1)
+    logger.info("concatenated original columns minus posting_text with TFIDF dataframe")
     prediction = model.predict(X_test)
+    logger.info(f"generated prediction {prediction} with the following datapoint: {X_test}")
     color = get_rating_color(prediction)
+    logger.info("generated prediction and color code")
     return {'prediction': prediction[0], 'color': color}
     
 
 @app.post('/submit-data')
 def append_datapoint(data: dict):
+    logger.info("Append datapoint endpoint called")
     datapoint_dict = generate_dataset_input(data['url'])
     datapoint_dict['rating'] = int(data['rating'])
+    logger.info("successfully scraped and generated dataset input")
 
     # Create a new DataFrame with the new row
     new_row_df = pd.DataFrame([datapoint_dict])
@@ -240,13 +295,17 @@ def append_datapoint(data: dict):
 
     # Assert that the last row of the DataFrame has all the same data as the dictionary object
     assert datapoint_dict == last_row_dict
+
+    logger.info("successfully updated dataset with new input")
   
-    print(updated_df.tail())
+    #print(updated_df.tail())
 
 
 @app.post('/retrain-model')
 def retrain_model():
+    logger.info("Retrain model endpoint called")
     results = train_linreg('app/dataset/myDataset.csv')
+    logger.info("Done with model evaluation")
     return results
 
 '''in this code we will use the entire dataset as a training set for the linear
@@ -257,8 +316,6 @@ def train_linreg(dataset_path):
   from sklearn.feature_extraction.text import TfidfVectorizer
   from sklearn.model_selection import cross_val_score
   from sklearn.metrics import make_scorer, accuracy_score
-  import joblib
-  import pandas as pd
   from sklearn.linear_model import LinearRegression
   from sklearn.preprocessing import LabelEncoder
 
@@ -277,16 +334,23 @@ def train_linreg(dataset_path):
   # Helper function to display key metrics for model performance.
   def display_scores(scores, metric='rounded_accuracy'):
     if metric == 'rounded_accuracy':
-      print('Accuracy of rounded and clipped predictions: results of 10-fold cross val')
+      #print('Accuracy of rounded and clipped predictions: results of 10-fold cross val')
+      logger.info('Accuracy of rounded and clipped predictions: results of 10-fold cross val')
     if metric == 'neg_mse':
-      print('Neg mean squared error scores from 10-fold cross val')
+      #print('Neg mean squared error scores from 10-fold cross val')
+      logger.info('Neg mean squared error scores from 10-fold cross val')
     if metric == 'neg_mae':
-      print('Neg mean absolute error scores from 10-fold cross val')
-    print("Scores:", scores)
-    print("Mean:", scores.mean())
-    print("Standard Deviation:", scores.std())
-
+      #print('Neg mean absolute error scores from 10-fold cross val')
+      logger.info('Neg mean absolute error scores from 10-fold cross val')
+    #print("Scores:", scores)
+    logger.info(f"Scores: {scores}")
+    #print("Mean:", scores.mean())
+    logger.info(f"Mean: {scores.mean()}")
+    #print("Standard Deviation:", scores.std())
+    logger.info(f"Standard Deviation: {scores.std()}")
+  
   dataset = pd.read_csv(dataset_path)
+  logger.info("read dataset into pandas dataframe")
 
   # Step 1: Split data into training and testing sets
   #X_train, X_test, y_train, y_test = train_test_split(dataset[['posting_text', 'min_salary', 'max_salary']], dataset['rating'], test_size=0.2, random_state=42)
@@ -295,12 +359,15 @@ def train_linreg(dataset_path):
   y = dataset['rating']
   le = LabelEncoder()
   y_train = le.fit_transform(dataset['rating'])
+  logger.info("label encoded the rating (target) column")
 
   # Step 2: Initialize and fit TF-IDF vectorizer on the training data only
   tfidf_vectorizer = TfidfVectorizer(max_features=5000)  # You can adjust max_features as needed
   X_train_tfidf = tfidf_vectorizer.fit_transform(X['posting_text'])
+  logger.info("Fit new TFIDF vectorizer to entire dataset")
   # Convert TF-IDF matrix to DataFrame
   X_train_tfidf_df = pd.DataFrame(X_train_tfidf.toarray(), columns=tfidf_vectorizer.get_feature_names_out(), index=X.index)
+  logger.info("Converted new TFIDF matrix to dataframe")
 
   # Step 3: Transform the test data using the fitted vectorizer
   #X_test_tfidf = tfidf_vectorizer.transform(X_test['posting_text'])
@@ -309,20 +376,25 @@ def train_linreg(dataset_path):
 
   new_df = X.drop(columns='posting_text')
   X_train = pd.concat([new_df, X_train_tfidf_df], axis=1)
+  logger.info("generated new training dataframe after concatenating all feature columns except 'posting_text' with the new TFIDF dataframe")
 
   # Now X_train and X_test are ready to be passed to a model
   model = LinearRegression()
   model.fit(X_train, y_train)
+  logger.info("fit linear regression model to data")
+  logger.info("attempting to perform 10-fold cross val of rounded accuracy")
   model_scores = cross_val_score(model, X_train, y_train, scoring=custom_scorer, cv = 10)
   display_scores(model_scores, 'rounded_accuracy')
   accuracy_avg = model_scores.mean()*100
   accuracy_std = model_scores.std()*100
 
+  logger.info("attempting to perform 10-fold cross val of negative mean squared error")
   model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv = 10)
   display_scores(model_scores, 'neg_mse')
   mse_avg = -1*model_scores.mean()
   mse_std = model_scores.std()
 
+  logger.info("attempting to perform 10-fold cross val of negative mean absolute error")
   model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_absolute_error', cv = 10)
   display_scores(model_scores, 'neg_mae')
   mae_avg = -1*model_scores.mean()
@@ -330,14 +402,18 @@ def train_linreg(dataset_path):
 
   # Save the TFIDF model to a file
   joblib.dump(tfidf_vectorizer, 'app/models/tfidf_vectorizer.joblib')
+  logger.info("saved new TFIDF vectorizer model to parameters to 'app/models/tfidf_vectorizer.joblib'")
 
   # Serialise model and dump on disk
   joblib.dump(model, 'app/models/linreg_clf.joblib')
+  logger.info("saved new Linear Regression model 'app/models/linreg_clf.joblib'")
 
   return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mse_avg': mse_avg, 'mse_std': mse_std} 
 
 @app.get("/dataset")
 async def get_dataset():
+    logger.info("get dataset endpoint called")
     df = pd.read_csv("app/dataset/myDataset.csv")
     data = df.to_dict(orient="records")
+    logger.info("converted dataset into dictionary object before sending to frontend")
     return JSONResponse(content=data)
