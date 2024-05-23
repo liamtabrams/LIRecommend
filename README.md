@@ -1,15 +1,5 @@
 # LIRecommend
 
-## Summary of important/notable files and folders
-
--**web_app_proto/ML_API** is where I am currently developing the FastAPI application I am deploying inside a Docker container.
-
--**parse_li_jobs.ipynb** is the notebook I did most of the early prototyping a preliminary data analyis in. It is quite a massive notebook and will likely need to be broken up into multiple notebooks so that the reader isn't overwhelmed having to scroll through this one notebook. 
-
--**LIRecommend_ModelEvaluation.ipynb** is where I did model evaluation for a large handful of different architectures and witnessed how they compared to each other in terms of accuracy with three different feature engineering approaches. The results of those experiments are shown in tables in **discussion/model_leaderboard.md**.
-
--**pre-trained_models** is an, I feel, aptly-named folder for, well, pretrained models, ones that I decide to checkin because they are options for pre-loaded models in the deployed app or due to some other reason. I will try to avoid checking things in just because I feel like it and I will also make an effort to trim the fat of this repo by removing unnecessary or unused code wherever warranted, and to in general clean up the presentation and organization of this repo. 
-
 ## The Vision and Overview
 
 The ultimate goal of this project is to design a scheme through which LinkedIn could improve it's job recommendation system.
@@ -37,3 +27,13 @@ The following were some initial goals or visions behind this project:
 Now all of the above has been accomplished. Our goal right now is to train a model, but not before the data is further processed and we have defined our full feature engineering pipeline. See 'misc.txt' in the discussion folder about my thought process and findings when it came to experimenting with different feature engineering approaches and models. UPDATE: although it was heavily considered and experimented with in the feature engineering step as placeholder LLM, as of right now the only role ChatGPT is playing on the server side is extracting the salary info from the job posting and converting it to the desired format before appending a row to the user's labelled dataset. This isn't trivial however the ChatGPT/LLM bit may be ditched altogether if I find the added performance from it is not worth the cost it accrues, which for me has been on the order of about 30 cents per 1000 API calls. It's not a huge cost, but there could probably be logic written that could do as good of a job as ChatGPT if not better at getting the salary data all nice and clean and in the right units. 
 
 UPDATE: I am currently developing the web tool as a FastAPI application deployed in a Docker container. The web tool currently consists of three pages: a home page, a page for predicting, and a page for collecting and reviewing labelled data as well as the current model's accuracy. 
+
+## Summary of important/notable files and folders
+
+-**web_app_proto/ML_API** is where I am currently developing the FastAPI application I am deploying inside a Docker container.
+
+-**parse_li_jobs.ipynb** is the notebook I did most of the early prototyping a preliminary data analyis in. It is quite a massive notebook and will likely need to be broken up into multiple notebooks so that the reader isn't overwhelmed having to scroll through this one notebook. 
+
+-**LIRecommend_ModelEvaluation.ipynb** is where I did model evaluation for a large handful of different architectures and witnessed how they compared to each other in terms of accuracy with three different feature engineering approaches. The results of those experiments are shown in tables in **discussion/model_leaderboard.md**.
+
+-**pre-trained_models** is an, I feel, aptly-named folder for, well, pretrained models, ones that I decide to checkin because they are options for pre-loaded models in the deployed app or due to some other reason. I will try to avoid checking things in just because I feel like it and I will also make an effort to trim the fat of this repo by removing unnecessary or unused code wherever warranted, and to in general clean up the presentation and organization of this repo. 
