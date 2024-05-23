@@ -14,12 +14,12 @@
             height: 100vh;
             justify-content: center;
             align-items: center;
-            position: relative; /* Add this to enable absolute positioning of the button */
+            position: relative;
         }
         .main-container {
             display: flex;
-            width: 90%; /* Increase the width */
-            max-width: 1400px; /* Increase the max-width */
+            width: 95%; /* Increased width */
+            max-width: 1600px; /* Increased max-width */
             border: 1px solid #ccc;
             border-radius: 5px;
             overflow: hidden;
@@ -27,11 +27,12 @@
         .left-container, .right-container {
             flex: 1;
             padding: 20px;
+            box-sizing: border-box;
         }
         .left-container {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
         }
         label {
             font-weight: bold;
@@ -64,12 +65,14 @@
             border-radius: 5px;
             color: white;
             font-weight: bold;
+            width: 100%; /* Ensure output takes full width */
+            text-align: center; /* Center text */
         }
         .right-container img {
-            width: 100%;
-            height: auto;
+            width: 100%; /* Ensure image fits within the container width */
+            height: 100%; /* Stretch height to fill container */
+            object-fit: contain; /* Maintain aspect ratio within the container */
             display: block;
-            max-height: 100%;
         }
         .home-link, .collect-data-link {
             position: absolute;
@@ -80,7 +83,7 @@
             top: 10px;
         }
         .collect-data-link {
-            top: 40px; /* Positioning the Collect Data link under Home link */
+            top: 40px;
         }
         a {
             text-decoration: none;
@@ -89,6 +92,23 @@
         }
         a:hover {
             color: #0056b3;
+        }
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 10px; /* Reduce top margin to shift video up */
+        }
+        .video-container video {
+            width: 90%; /* Increase width to 90% of the container */
+            max-width: 800px; /* Increase max-width to 800px */
+            height: auto; /* Maintain aspect ratio */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .video-container h3 {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -102,6 +122,14 @@
             <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
             <button onclick="predict()">Predict Rating</button>
             <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
+            <!-- Adding video element in a centered container with a heading -->
+            <div class="video-container">
+                <h3>How to Predict</h3>
+                <video controls>
+                    <source src="/static/screen_recording_predict.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
         </div>
         <div class="right-container">
             <img src="/static/vizz.png" alt="Image Description">

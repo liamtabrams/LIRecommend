@@ -125,6 +125,19 @@
         a:hover {
             color: #0056b3;
         }
+        #loadingMessage {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 20px;
+            border-radius: 10px;
+            z-index: 1000; /* Ensure it is above other elements */
+        }
     </style>
 </head>
 <body>
@@ -182,10 +195,13 @@
         </div>
     </div>
 
+    <div id="loadingMessage">Please wait while the model is being retrained...</div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script>
         function retrainModel() {
+            showLoadingMessage();
             fetch('/retrain-model', {
                 method: 'POST',
                 headers: {
@@ -200,11 +216,12 @@
                 document.getElementById('mae_std').innerText = `Mean Absolute Error Standard Deviation: ${data.mae_std}`;
                 document.getElementById('mse_avg').innerText = `Mean Squared Error Average: ${data.mse_avg}`;
                 document.getElementById('mse_std').innerText = `Mean Squared Error Standard Deviation: ${data.mse_std}`;
-                alert("Model retrained successfully");
+                hideLoadingMessage();
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert("An error occurred. Please try again.");
+                hideLoadingMessage();
             });
         }
 
@@ -261,6 +278,14 @@
             } else {
                 content.style.display = "none";
             }
+        }
+
+        function showLoadingMessage() {
+            document.getElementById('loadingMessage').style.display = 'block';
+        }
+
+        function hideLoadingMessage() {
+            document.getElementById('loadingMessage').style.display = 'none';
         }
 
         $(document).ready(function() {
