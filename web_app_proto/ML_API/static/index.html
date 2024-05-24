@@ -18,21 +18,29 @@
         }
         .main-container {
             display: flex;
-            width: 95%; /* Increased width */
-            max-width: 1600px; /* Increased max-width */
+            width: 95%;
+            max-width: 1600px;
+            max-height: 80vh; /* Ensure container does not exceed viewport height */
             border: 1px solid #ccc;
             border-radius: 5px;
             overflow: hidden;
         }
         .left-container, .right-container {
             flex: 1;
-            padding: 20px;
+            padding: 10px; /* Reduced padding */
             box-sizing: border-box;
         }
         .left-container {
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            align-items: center; /* Center text horizontally */
+        }
+        h2, label, input[type="text"], button, #output {
+            text-align: center; /* Center text */
+        }
+        h2 {
+            font-size: 1.2em; /* Reduced font size */
+            margin: 5px 0 15px 0; /* Adjusted bottom margin */
         }
         label {
             font-weight: bold;
@@ -60,18 +68,17 @@
         }
         #output {
             margin-top: 7px;
-            margin-bottom: 7px;
+            margin-bottom: 15px; /* Adjusted bottom margin */
             padding: 10px;
             border-radius: 5px;
             color: white;
             font-weight: bold;
-            width: 100%; /* Ensure output takes full width */
-            text-align: center; /* Center text */
+            width: 100%;
         }
         .right-container img {
-            width: 100%; /* Ensure image fits within the container width */
-            height: 100%; /* Stretch height to fill container */
-            object-fit: contain; /* Maintain aspect ratio within the container */
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
             display: block;
         }
         .home-link, .collect-data-link {
@@ -98,12 +105,12 @@
             flex-direction: column;
             align-items: center;
             width: 100%;
-            margin-top: 10px; /* Reduce top margin to shift video up */
+            margin-top: 10px;
         }
         .video-container video {
-            width: 90%; /* Increase width to 90% of the container */
-            max-width: 800px; /* Increase max-width to 800px */
-            height: auto; /* Maintain aspect ratio */
+            width: 90%;
+            max-width: 800px;
+            height: auto;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
@@ -117,12 +124,10 @@
     <a href="/static/collect_data.html" class="collect-data-link">Collect Data</a>
     <div class="main-container">
         <div class="left-container">
-            <h2>Job Rating Prediction (0/3)</h2>
             <label for="url">Enter job posting URL:</label>
             <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
             <button onclick="predict()">Predict Rating</button>
             <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
-            <!-- Adding video element in a centered container with a heading -->
             <div class="video-container">
                 <h3>How to Predict</h3>
                 <video controls>
