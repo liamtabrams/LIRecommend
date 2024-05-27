@@ -271,7 +271,7 @@ def predict(data: dict):
     logger.info(f"generated prediction {prediction} with the following datapoint: {X_test}")
     color = get_rating_color(prediction)
     logger.info("generated prediction and color code")
-    return {'prediction': prediction[0], 'color': color}
+    return {'prediction': round(prediction[0], 3), 'color': color}
     
 
 @app.post('/submit-data')
@@ -385,20 +385,20 @@ def train_linreg(dataset_path):
   logger.info("attempting to perform 10-fold cross val of rounded accuracy")
   model_scores = cross_val_score(model, X_train, y_train, scoring=custom_scorer, cv = 10)
   display_scores(model_scores, 'rounded_accuracy')
-  accuracy_avg = model_scores.mean()*100
-  accuracy_std = model_scores.std()*100
+  accuracy_avg = round(model_scores.mean()*100, 1)
+  accuracy_std = round(model_scores.std()*100, 1)
 
   logger.info("attempting to perform 10-fold cross val of negative mean squared error")
   model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv = 10)
   display_scores(model_scores, 'neg_mse')
-  mse_avg = -1*model_scores.mean()
-  mse_std = model_scores.std()
+  mse_avg = round(-1*model_scores.mean(), 3)
+  mse_std = round(model_scores.std(), 3)
 
   logger.info("attempting to perform 10-fold cross val of negative mean absolute error")
   model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_absolute_error', cv = 10)
   display_scores(model_scores, 'neg_mae')
-  mae_avg = -1*model_scores.mean()
-  mae_std = model_scores.std()
+  mae_avg = round(-1*model_scores.mean(), 3)
+  mae_std = round(model_scores.std(), 3)
 
   # Save the TFIDF model to a file
   joblib.dump(tfidf_vectorizer, 'app/models/tfidf_vectorizer.joblib')

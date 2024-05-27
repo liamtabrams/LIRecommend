@@ -11,75 +11,76 @@
             margin: 0;
             padding: 0;
             display: flex;
-            height: 100vh;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            position: relative;
+            justify-content: center;
+            height: 100vh;
         }
-        .main-container {
+        .upper-container {
             display: flex;
-            width: 95%;
-            max-width: 1600px;
-            max-height: 80vh; /* Ensure container does not exceed viewport height */
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            overflow: hidden;
+            justify-content: space-between;
+            width: 90%;
+            max-width: 1400px;
+            margin-bottom: 20px; /* Adjust spacing as needed */
         }
-        .left-container, .right-container {
+        .upper-container div {
             flex: 1;
-            padding: 10px; /* Reduced padding */
+            padding: 10px;
             box-sizing: border-box;
         }
-        .left-container {
+        .upper-container .video-container, .upper-container .image-container {
+            text-align: center;
+        }
+        .upper-container video, .upper-container img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .upper-container h3 {
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+        .center-container {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Center text horizontally */
+            align-items: center;
+            width: 90%;
+            max-width: 600px;
         }
-        h2, label, input[type="text"], button, #output {
-            text-align: center; /* Center text */
-        }
-        h2 {
-            font-size: 1.2em; /* Reduced font size */
-            margin: 5px 0 15px 0; /* Adjusted bottom margin */
-        }
-        label {
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        input[type="text"] {
+        .center-container label, .center-container input, .center-container button, .center-container #output {
+            text-align: center;
             width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            box-sizing: border-box;
+            margin-bottom: 15px;
         }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
+        .center-container label {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .center-container input[type="text"] {
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 1.2em;
+        }
+        .center-container button {
+            padding: 15px 30px;
+            background-color: #000;
             color: #fff;
             border: none;
-            border-radius: 3px;
+            border-radius: 5px;
             cursor: pointer;
-            margin-top: 10px;
+            font-size: 1.2em;
         }
-        button:hover {
-            background-color: #0056b3;
+        .center-container button:hover {
+            background-color: #333;
         }
         #output {
-            margin-top: 7px;
-            margin-bottom: 15px; /* Adjusted bottom margin */
             padding: 10px;
             border-radius: 5px;
             color: white;
             font-weight: bold;
-            width: 100%;
-        }
-        .right-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            display: block;
         }
         .home-link, .collect-data-link {
             position: absolute;
@@ -100,45 +101,29 @@
         a:hover {
             color: #0056b3;
         }
-        .video-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .video-container video {
-            width: 90%;
-            max-width: 800px;
-            height: auto;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .video-container h3 {
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
     <a href="/static/landing_page.html" class="home-link">Home</a>
     <a href="/static/collect_data.html" class="collect-data-link">Collect Data</a>
-    <div class="main-container">
-        <div class="left-container">
-            <label for="url">Enter job posting URL:</label>
-            <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
-            <button onclick="predict()">Predict Rating</button>
-            <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
-            <div class="video-container">
-                <h3>How to Predict</h3>
-                <video controls>
-                    <source src="/static/screen_recording_predict.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
+    <div class="upper-container">
+        <div class="video-container">
+            <h3>How to Predict</h3>
+            <video controls>
+                <source src="/static/screen_recording_predict.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
         </div>
-        <div class="right-container">
+        <div class="image-container">
+            <h3>Rating System</h3>
             <img src="/static/vizz.png" alt="Image Description">
         </div>
+    </div>
+    <div class="center-container">
+        <label for="url">Enter job posting URL:</label>
+        <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
+        <button onclick="predict()">Predict Rating</button>
+        <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
     </div>
 
     <script>

@@ -22,7 +22,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             overflow: hidden;
-            margin-top: 20px; /* Adjusted margin-top to 20px */
+            margin-top: 10px; /* Adjusted margin-top to 10px */
             height: auto; /* Set height to auto */
         }
         .left-container, .right-container {
@@ -34,6 +34,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            text-align: center; /* Center-align text */
         }
         label {
             font-weight: bold;
@@ -46,20 +47,25 @@
             border: 1px solid #ccc;
             border-radius: 3px;
             box-sizing: border-box;
+            text-align: center; /* Center-align text */
+        }
+        /* Center the default text in the select dropdown */
+        select option {
+            text-align: center;
         }
         button {
             padding: 10px 20px;
-            background-color: #007bff;
+            background-color: #000; /* Changed background color to black */
             color: #fff;
             border: none;
             border-radius: 3px;
             cursor: pointer;
-            margin-top: 10px;
+            margin-top: 20px; /* Adjusted margin-top to 20px */
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #333; /* Darken the hover color */
         }
-        #output, #accuracy_avg, #accuracy_std, #mae_avg, #mae_std, #mse_avg, #mse_std {
+        #output {
             margin-top: 20px;
         }
         h3 {
@@ -115,7 +121,32 @@
         .dataset-section {
             width: 90%;
             max-width: 1400px;
+            margin-top: 20px; /* Adjusted margin-top to 20px */
+        }
+        .metrics-container {
+            width: 90%;
+            max-width: 1400px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
             margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .metrics-container div {
+            flex: 1 1 calc(33% - 10px);
+            margin: 5px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .toggle-button-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
         }
         a {
             text-decoration: none;
@@ -161,12 +192,6 @@
         </div>
         <div class="right-container">
             <h3>Model Performance Metrics</h3>
-            <div id="accuracy_avg"></div>
-            <div id="accuracy_std"></div>
-            <div id="mae_avg"></div>
-            <div id="mae_std"></div>
-            <div id="mse_avg"></div>
-            <div id="mse_std"></div>
             <h4>What are good values for accuracy and error?</h4>
             <p>
                 There is inherent subjectivity in the application of the rating system and everyone will have their own unique corner cases which make modeling difficult. However, based on experiments of a user's drift over a 2-month period, the upper bound for accuracy is around 65% while the lower bounds for mean squared and absolute error are around .35. This means that a model achieving at least 60% accuracy and MAE and MSE's of less than .5 is doing quite well.
@@ -174,8 +199,24 @@
         </div>
     </div>
 
+    <div class="metrics-container">
+        <div id="accuracy_avg">Accuracy Average: --</div>
+        <div id="accuracy_std">Accuracy Std Dev: --</div>
+        <div id="mae_avg">MAE Average: --</div>
+        <div id="mae_std">MAE Std Dev: --</div>
+        <div id="mse_avg">MSE Average: --</div>
+        <div id="mse_std">MSE Std Dev: --</div>
+    </div>
+
+    <div class="toggle-button-container">
+        <button onclick="toggleCollapsible()">
+            <span style="margin-right: 5px;">&#9650;</span> <!-- Up arrow symbol -->
+            Hide/Show Dataset 
+            <span style="margin-left: 5px;">&#9660;</span> <!-- Down arrow symbol -->
+        </button>
+    </div>
+
     <div class="dataset-section">
-        <button onclick="toggleCollapsible()">Hide/Show Dataset</button>
         <div id="collapsible-content" class="collapsible-content">
             <div class="table-container">
                 <div class="scrollable">
@@ -211,11 +252,11 @@
             .then(response => response.json())
             .then(data => {
                 document.getElementById('accuracy_avg').innerText = `Accuracy Average: ${data.accuracy_avg}%`;
-                document.getElementById('accuracy_std').innerText = `Accuracy Standard Deviation: ${data.accuracy_std}%`;
-                document.getElementById('mae_avg').innerText = `Mean Absolute Error Average: ${data.mae_avg}`;
-                document.getElementById('mae_std').innerText = `Mean Absolute Error Standard Deviation: ${data.mae_std}`;
-                document.getElementById('mse_avg').innerText = `Mean Squared Error Average: ${data.mse_avg}`;
-                document.getElementById('mse_std').innerText = `Mean Squared Error Standard Deviation: ${data.mse_std}`;
+                document.getElementById('accuracy_std').innerText = `Accuracy Std Dev: ${data.accuracy_std}%`;
+                document.getElementById('mae_avg').innerText = `MAE Average: ${data.mae_avg}`;
+                document.getElementById('mae_std').innerText = `MAE Std Dev: ${data.mae_std}`;
+                document.getElementById('mse_avg').innerText = `MSE Average: ${data.mse_avg}`;
+                document.getElementById('mse_std').innerText = `MSE Std Dev: ${data.mse_std}`;
                 hideLoadingMessage();
             })
             .catch(error => {
