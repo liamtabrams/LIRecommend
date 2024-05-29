@@ -69,7 +69,7 @@
         }
         h3 {
             margin-top: 30px;
-            font-weight: bold;
+            font-weight: bold
             text-align: center;
         }
         h4 {
@@ -123,7 +123,7 @@
             margin-top: 20px; /* Adjusted margin-top to 20px */
         }
         .metrics-container {
-            width: 90%;
+            width: 85%;
             max-width: 1400px;
             display: flex;
             flex-wrap: wrap;
@@ -140,11 +140,23 @@
             border-radius: 3px;
             text-align: center;
         }
-        .toggle-button-container {
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            margin: 10px 0;
+        .toggle-button-container button {
+            padding: 15px 30px; /* Increase padding */
+            font-weight: bold; /* Bold font */
+            font-size: 16px; /* Larger font size */
+            background-color: #333; /* Dark background color */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .toggle-button-container button:hover {
+            background-color: #555; /* Darken the hover color */
+        }
+        .download-options-container {
+            text-align: center;
+            margin-top: 0px;
         }
         a {
             text-decoration: none;
@@ -167,6 +179,21 @@
             border-radius: 10px;
             z-index: 1000; /* Ensure it is above other elements */
         }
+        /* Other CSS styles */
+        .download-all-button {
+            margin-top: 20px;
+        }
+        .download-all-button button {
+            background-color: #000;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .download-all-button button:hover {
+            background-color: #333;
+        }
     </style>
 </head>
 <body>
@@ -174,9 +201,9 @@
     <a href="/static/index.html" class="predict-link">Recommend</a>
     <div class="main-container">
         <div class="left-container">
-            <h2>Collect Data</h2>
+            <h2>Append to Dataset</h2>
             <label for="url">Enter job posting URL:</label>
-            <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest>" required>
+            <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest" required>
             <label for="rating">Select rating:</label>
             <select id="rating" name="rating" required>
                 <option value="0">0</option>
@@ -204,6 +231,16 @@
         <div id="mae_std">MAE Std Dev: --</div>
         <div id="mse_avg">MSE Average: --</div>
         <div id="mse_std">MSE Std Dev: --</div>
+    </div>
+
+    <div class="download-options-container">
+        <button onclick="downloadFile('dataset')">Download Dataset (CSV)</button>
+        <button onclick="downloadFile('tfidf-model')">Download TFIDF Model</button>
+        <button onclick="downloadFile('linreg-model')">Download Linear Regression Model</button>
+    </div>
+
+    <div class="download-all-button">
+        <button onclick="downloadAll()">Download All</button> <!-- New button for Download All -->
     </div>
 
     <div class="toggle-button-container">
@@ -234,7 +271,7 @@
         </div>
     </div>
 
-    <div id="loadingMessage">Please wait while the model is being retrained...</div>
+    <div id="loadingMessage">Please wait while the model is being retrained and thoroughly evaluated...</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -267,6 +304,10 @@
         function collectData() {
             var urlInput = document.getElementById("url").value;
             var ratingInput = document.getElementById("rating").value;
+            if (!isValidURL(urlInput)) {
+                alert("Please enter a valid URL.");
+                return;
+            }
             var data = {
                 "url": urlInput,
                 "rating": ratingInput
@@ -282,11 +323,18 @@
             .then(data => {
                 console.log(data);
                 document.getElementById("output").innerText = "Data submitted successfully.";
+                document.getElementById("url").value = "";
+                document.getElementById("rating").value = "0";
             })
             .catch(error => {
                 console.error('Error:', error);
                 document.getElementById("output").innerText = "Error occurred. Please try again.";
             });
+        }
+
+        function isValidURL(url) {
+            const regex = /^(https?|chrome):\/\/[^\s$.?#].[^\s]*$/gm;
+            return regex.test(url);
         }
 
         function fetchDataset() {
@@ -342,6 +390,60 @@
             document.getElementById("collapsible-content").style.display = "block";
             fetchDataset();
         });
+        function downloadFile(type) {
+            let url = '';
+            switch (type) {
+                case 'dataset':
+                    url = '/download-dataset';
+                    break;
+                case 'tfidf-model':
+                    url = '/download-tfidf-model';
+                    break;
+                case 'linreg-model':
+                    url = '/download-linreg-model';
+                    break;
+            }
+            window.location.href = url;
+        }
+        // Function to trigger the download of all files
+        function downloadAll() {
+            // Send a GET request to the /download-all endpoint
+            fetch('/download-all')
+                .then(response => {
+                    // Check if the response status is OK
+                    if (!response.ok) {
+                        // If not, throw an error
+                        throw new Error('Failed to download all files');
+                    }
+                    // Return the response body as a blob
+                    return response.blob();
+                })
+                .then(blob => {
+                    // Create a URL for the blob
+                    const url = window.URL.createObjectURL(blob);
+                    // Create an anchor element to trigger the download
+                    const a = document.createElement('a');
+                    // Set the href attribute of the anchor to the blob URL
+                    a.href = url;
+                    // Set the download attribute to specify the filename
+                    a.download = 'user_data.zip';
+                    // Append the anchor to the document body
+                    document.body.appendChild(a);
+                    // Click the anchor to trigger the download
+                    a.click();
+                    // Remove the anchor from the document body
+                    document.body.removeChild(a);
+                    // Revoke the blob URL to free up memory
+                    window.URL.revokeObjectURL(url);
+                })
+                .catch(error => {
+                    // Log any errors to the console
+                    console.error('Error:', error);
+                    // Display an error message to the user
+                    alert('Failed to download all files');
+                });
+        }
     </script>
 </body>
 </html>
+

@@ -9,10 +9,12 @@ import pandas as pd
 import joblib
 from bs4 import BeautifulSoup
 import multiprocessing
-from fastapi import FastAPI, Request
+import io
+import zipfile
+from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates as templates
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, StreamingResponse
 from openai import OpenAI
 
 # Configure the logging
@@ -181,7 +183,7 @@ def generate_dataset_input(url):
     json_data = json.load(json_file)
   min_salary = json_data["salary_min"]
   max_salary = json_data["salary_max"]
-  dataset_df = pd.read_csv('app/dataset/myDataset.csv')
+  dataset_df = pd.read_csv('app/user_data/dataset/myDataset.csv')
   logger.info("reading in dataset to determine salary column modes")
   min_salary_mode = dataset_df['min_salary'].mode()[0]
   max_salary_mode = dataset_df['max_salary'].mode()[0]
@@ -253,8 +255,8 @@ def generate_prediction(url):
         try:
             datapoint = generate_dataset_input(url)
             logger.info("generated datapoint")
-            model = joblib.load('app/models/linreg_clf.joblib')
-            tfidf_vect = joblib.load('app/models/tfidf_vectorizer.joblib')
+            model = joblib.load('app/user_data/models/linreg_clf.joblib')
+            tfidf_vect = joblib.load('app/user_data/models/tfidf_vectorizer.joblib')
             logger.info("loaded pre-trained Linear Regression and TFIDF Vectorizer models")
             # Step 3: Transform the test data using the fitted vectorizer
             X_test_tfidf = tfidf_vect.transform([datapoint['posting_text']])
@@ -364,13 +366,13 @@ def append_datapoint(data: dict):
     # Create a new DataFrame with the new row
     new_row_df = pd.DataFrame([datapoint_dict])
 
-    dataset_df = pd.read_csv('app/dataset/myDataset.csv')
+    dataset_df = pd.read_csv('app/user_data/dataset/myDataset.csv')
     
     df = pd.concat([dataset_df, new_row_df], ignore_index=True)
 
-    df.to_csv('app/dataset/myDataset.csv', index=False)
+    df.to_csv('app/user_data/dataset/myDataset.csv', index=False)
 
-    updated_df = pd.read_csv('app/dataset/myDataset.csv')
+    updated_df = pd.read_csv('app/user_data/dataset/myDataset.csv')
     last_row_dict = updated_df.iloc[-1].to_dict()
 
     # Assert that the last row of the DataFrame has all the same data as the dictionary object
@@ -384,7 +386,7 @@ def append_datapoint(data: dict):
 @app.post('/retrain-model')
 def retrain_model():
     logger.info("Retrain model endpoint called")
-    results = train_linreg('app/dataset/myDataset.csv')
+    results = train_linreg('app/user_data/dataset/myDataset.csv')
     logger.info("Done with model evaluation")
     return results
 
@@ -481,19 +483,62 @@ def train_linreg(dataset_path):
   mae_std = round(model_scores.std(), 3)
 
   # Save the TFIDF model to a file
-  joblib.dump(tfidf_vectorizer, 'app/models/tfidf_vectorizer.joblib')
-  logger.info("saved new TFIDF vectorizer model to parameters to 'app/models/tfidf_vectorizer.joblib'")
+  joblib.dump(tfidf_vectorizer, 'app/user_data/models/tfidf_vectorizer.joblib')
+  logger.info("saved new TFIDF vectorizer model to parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
 
   # Serialise model and dump on disk
-  joblib.dump(model, 'app/models/linreg_clf.joblib')
-  logger.info("saved new Linear Regression model 'app/models/linreg_clf.joblib'")
+  joblib.dump(model, 'app/user_data/models/linreg_clf.joblib')
+  logger.info("saved new Linear Regression model 'app/user_data/models/linreg_clf.joblib'")
 
   return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mse_avg': mse_avg, 'mse_std': mse_std} 
 
 @app.get("/dataset")
 async def get_dataset():
     logger.info("get dataset endpoint called")
-    df = pd.read_csv("app/dataset/myDataset.csv")
+    df = pd.read_csv("app/user_data/dataset/myDataset.csv")
     data = df.to_dict(orient="records")
     logger.info("converted dataset into dictionary object before sending to frontend")
     return JSONResponse(content=data)
+
+@app.get("/download-dataset")
+def download_dataset():
+    file_path = 'app/user_data/dataset/myDataset.csv'
+    return FileResponse(file_path, media_type='text/csv', filename='myDataset.csv')
+
+@app.get("/download-tfidf-model")
+def download_tfidf_model():
+    file_path = 'app/user_data/models/tfidf_vectorizer.joblib'
+    return FileResponse(file_path, media_type='application/octet-stream', filename='tfidf_vectorizer.joblib')
+
+@app.get("/download-linreg-model")
+def download_linreg_model():
+    file_path = 'app/user_data/models/linreg_clf.joblib'
+    return FileResponse(file_path, media_type='application/octet-stream', filename='linreg_clf.joblib')
+
+@app.get("/download-all")
+async def download_all():
+    # Create an in-memory byte stream to hold the zip file
+    zip_data = io.BytesIO()
+
+    # Create a ZipFile object with the in-memory byte stream
+    with zipfile.ZipFile(zip_data, mode="w") as zip_file:
+        # Add the dataset file to the 'dataset' folder in the zip file
+        dataset_file_path = 'app/user_data/dataset/myDataset.csv'
+        with open(dataset_file_path, "r", newline="") as dataset_file:
+            dataset_content = dataset_file.read()
+            zip_file.writestr("dataset/myDataset.csv", dataset_content)
+
+        # Add the tfidf model file to the 'models' folder in the zip file
+        zip_file.write("app/user_data/models/tfidf_vectorizer.joblib", arcname="models/tfidf_vectorizer.joblib")
+
+        # Add the linear regression model file to the 'models' folder in the zip file
+        zip_file.write("app/user_data/models/linreg_clf.joblib", arcname="models/linreg_clf.joblib")
+
+    # Seek to the beginning of the in-memory byte stream
+    zip_data.seek(0)
+
+    # Set the Content-Disposition header to force download
+    content_disposition = "attachment; filename=user_data.zip"
+
+    # Return the in-memory byte stream as a StreamingResponse with the appropriate media type
+    return StreamingResponse(io.BytesIO(zip_data.read()), media_type="application/zip", headers={"Content-Disposition": content_disposition})
