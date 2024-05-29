@@ -13,58 +13,66 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
+            justify-content: flex-start; /* Align containers near the top */
+            min-height: 100vh; /* Ensure the body fills the viewport */
         }
-        .upper-container {
+        .main-container {
             display: flex;
             justify-content: space-between;
             width: 90%;
             max-width: 1400px;
-            margin-bottom: 20px; /* Adjust spacing as needed */
+            margin-top: 20px; /* Add margin to push containers down from the top */
         }
-        .upper-container div {
+        .left-container, .right-container {
             flex: 1;
             padding: 10px;
             box-sizing: border-box;
         }
-        .upper-container .video-container, .upper-container .image-container {
-            text-align: center;
+        .right-container {
+            flex: 1;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Align content to the right */
         }
-        .upper-container video, .upper-container img {
-            width: 100%;
+        .video-container {
+            text-align: center; /* Align text to the right within the containers */
+            width: 90%; /* Adjust the width of the containers */
+            margin-bottom: 10px;
             max-width: 100%;
+        }
+        .video-container video {
+            width: 100%;
             height: auto;
             border-radius: 5px;
         }
-        .upper-container h3 {
-            margin-bottom: 10px;
+        .video-container h3 {
+            margin-bottom: 0px;
             font-size: 1.5em;
         }
-        .center-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 90%;
-            max-width: 600px;
+        .form-container {
+            margin-top: 25px;
+            margin-bottom: 20px;
+            text-align: center; /* Center text within the container */
         }
-        .center-container label, .center-container input, .center-container button, .center-container #output {
+        .form-container label, .form-container input, .form-container button, .form-container #output {
             text-align: center;
             width: 100%;
             margin-bottom: 15px;
         }
-        .center-container label {
+        .form-container label {
             font-weight: bold;
             font-size: 1.2em;
         }
-        .center-container input[type="text"] {
+        .form-container input[type="text"] {
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
             font-size: 1.2em;
         }
-        .center-container button {
+        .form-container button {
             padding: 15px 30px;
             background-color: #000;
             color: #fff;
@@ -73,7 +81,7 @@
             cursor: pointer;
             font-size: 1.2em;
         }
-        .center-container button:hover {
+        .form-container button:hover {
             background-color: #333;
         }
         #output {
@@ -101,35 +109,97 @@
         a:hover {
             color: #0056b3;
         }
+        #recommend-output ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        #recommend-output ul li {
+            margin-bottom: 10px;
+        }
+        /* New CSS for legend container */
+        .legend-container {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: #57585953; /* Darker grey background */
+            padding: 10px; /* Reduce padding */
+            border-radius: 10px;
+            width: 90%; /* Adjust width to fit within the container */
+            max-width: 100%;
+            border: 2px solid black; /* Add black border */
+        }
+        .legend-container p {
+            margin-bottom: 5px; /* Reduce margin between lines */
+            font-weight: bold;
+            font-size: 1.2em;
+            padding: 5px; /* Reduce padding */
+        }
+        .black-text {
+            color: rgb(0, 0, 0);
+        }
+        .green-text {
+            color: rgb(20, 128, 20);
+        }
+        .yellow-text {
+            color: rgba(136, 144, 1, 0.604);
+        }
+        .orange-text {
+            color: rgb(195, 114, 0);
+        }
+        .red-text {
+            color: rgb(157, 8, 8);
+        }
+        #loading-message {
+            display: none; /* Hide by default */
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <a href="/static/landing_page.html" class="home-link">Home</a>
     <a href="/static/collect_data.html" class="collect-data-link">Collect Data</a>
-    <div class="upper-container">
-        <div class="video-container">
-            <h3>How to Predict</h3>
-            <video controls>
-                <source src="/static/screen_recording_predict.mp4" type="video/mp4">
-                Your browser does not support the video tag.
-            </video>
+    <div class="main-container">
+        <div class="left-container">
+            <div class="video-container">
+                <h3>How to Predict</h3>
+                <video controls>
+                    <source src="/static/screen_recording_predict.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="form-container">
+                <label for="url">Enter job posting URL:</label>
+                <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
+                <button onclick="predict()">Predict Rating</button>
+                <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
+            </div>
         </div>
-        <div class="image-container">
-            <h3>Rating System</h3>
-            <img src="/static/vizz.png" alt="Image Description">
+        <div class="right-container">
+            <div class="form-container">
+                <label for="recommend-term">Enter job search term:</label>
+                <input type="text" id="recommend-term" name="recommend-term" placeholder="e.g., Software Engineer">
+                <button onclick="recommend()">Recommend</button>
+                <div id="loading-message">Please wait while the recommendations are being generated...</div>
+                <div id="recommend-output">
+                    <ul id="recommend-links"></ul>
+                </div>
+            </div>
+            <div class="legend-container">
+                <p class="black-text">Rating Legend</p>
+                <p class="green-text">&#8805 3 - This would be a dream job or an optimal stepping stone in my career</p>
+                <p class="yellow-text">2 - This could be a decent fit but it's not my dream job</p>
+                <p class="orange-text">1 - I'd consider taking such a job under very specific circumstances</p>
+                <p class="red-text">&#8804 0 - I would never consider taking such a job</p>
+            </div>
         </div>
-    </div>
-    <div class="center-container">
-        <label for="url">Enter job posting URL:</label>
-        <input type="text" id="url" name="url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
-        <button onclick="predict()">Predict Rating</button>
-        <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
     </div>
 
     <script>
         function predict() {
             var urlInput = document.getElementById("url").value;
-            var data = { "features": [urlInput] };
+            var data = { "url": urlInput };
             fetch('/predict', {
                 method: 'POST',
                 headers: {
@@ -151,6 +221,46 @@
                 output.style.backgroundColor = "red"; // Set background color to red for error
             });
         }
-    </script>
+        
+        function recommend() {
+            var term = document.getElementById("recommend-term").value;
+            var data = { "term": term };
+            var loadingMessage = document.getElementById("loading-message");
+            loadingMessage.style.display = "block"; // Show the loading message
+    
+            // Clear previous recommendations
+            var recommendLinks = document.getElementById("recommend-links");
+            recommendLinks.innerHTML = '';
+    
+            fetch('/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingMessage.style.display = "none"; // Hide the loading message
+                data.recommendations.forEach(function(job) {
+                    var li = document.createElement('li');
+                    var a = document.createElement('a');
+                    a.href = job.url;
+                    a.textContent = `${job.position} at ${job.company} (Rating: ${job.rating})`;
+                    a.target = '_blank';
+                    a.style.color = job.color; // Set text color according to job color
+                    li.appendChild(a);
+                    recommendLinks.appendChild(li);
+                });
+            })
+            .catch(error => {
+                loadingMessage.style.display = "none"; // Hide the loading message
+                console.error('Error:', error);
+                var recommendOutput = document.getElementById("recommend-output");
+                recommendOutput.innerText = "Error occurred. Please try again.";
+                recommendOutput.style.backgroundColor = "red"; // Set background color to red for error
+            });
+        }
+    </script>    
 </body>
 </html>

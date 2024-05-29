@@ -3,10 +3,12 @@ import time
 import json
 import requests
 import logging
+import re
 import numpy as np
 import pandas as pd
 import joblib
 from bs4 import BeautifulSoup
+import multiprocessing
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates as templates
@@ -246,32 +248,110 @@ def get_rating_color(rating):
     # Return the color as a hex code
     return f'#{red:02x}{green:02x}{blue:02x}'
 
+def generate_prediction(url):
+    while True:
+        try:
+            datapoint = generate_dataset_input(url)
+            logger.info("generated datapoint")
+            model = joblib.load('app/models/linreg_clf.joblib')
+            tfidf_vect = joblib.load('app/models/tfidf_vectorizer.joblib')
+            logger.info("loaded pre-trained Linear Regression and TFIDF Vectorizer models")
+            # Step 3: Transform the test data using the fitted vectorizer
+            X_test_tfidf = tfidf_vect.transform([datapoint['posting_text']])
+            logger.info("transformed datapoint's posting_text into TFIDF matrix")
+            # Convert TF-IDF matrix to DataFrame
+            X_test_tfidf_df = pd.DataFrame(X_test_tfidf.toarray(), columns=tfidf_vect.get_feature_names_out())
+            logger.info("transformed the matrix into a dataframe")
+            #Create DataFrame excluding 'posting_text' column
+            new_df = pd.DataFrame({key: [value] for key, value in datapoint.items() if key != 'posting_text'})
+            X_test = pd.concat([new_df, X_test_tfidf_df], axis=1)
+            logger.info("concatenated original columns minus posting_text with TFIDF dataframe")
+            prediction = model.predict(X_test)
+            logger.info(f"generated prediction {prediction} with the following datapoint: {X_test}")
+            color = get_rating_color(prediction)
+            logger.info("generated prediction and color code")
+            return prediction[0], color, datapoint
+        except:
+          pass
+
+def generate_prediction_wrapper(args):
+    url = args
+    return url, generate_prediction(url)
+
 @app.post('/predict')
 def predict(data: dict):
     logger.info("Predict endpoint called")
-    features = np.array(data['features']).reshape(1, -1).flatten().tolist()
-    url = features[0]
+    url = data["url"]
     logger.info(f"{url} successfully sent to backend")
-    datapoint = generate_dataset_input(url)
-    logger.info("generated datapoint")
-    model = joblib.load('app/models/linreg_clf.joblib')
-    tfidf_vect = joblib.load('app/models/tfidf_vectorizer.joblib')
-    logger.info("loaded pre-trained Linear Regression and TFIDF Vectorizer models")
-    # Step 3: Transform the test data using the fitted vectorizer
-    X_test_tfidf = tfidf_vect.transform([datapoint['posting_text']])
-    logger.info("transformed datapoint's posting_text into TFIDF matrix")
-    # Convert TF-IDF matrix to DataFrame
-    X_test_tfidf_df = pd.DataFrame(X_test_tfidf.toarray(), columns=tfidf_vect.get_feature_names_out())
-    logger.info("transformed the matrix into a dataframe")
-    # Create DataFrame excluding 'posting_text' column
-    new_df = pd.DataFrame({key: [value] for key, value in datapoint.items() if key != 'posting_text'})
-    X_test = pd.concat([new_df, X_test_tfidf_df], axis=1)
-    logger.info("concatenated original columns minus posting_text with TFIDF dataframe")
-    prediction = model.predict(X_test)
-    logger.info(f"generated prediction {prediction} with the following datapoint: {X_test}")
-    color = get_rating_color(prediction)
-    logger.info("generated prediction and color code")
-    return {'prediction': round(prediction[0], 3), 'color': color}
+    prediction, color, datapoint = generate_prediction(url)
+    return {'prediction': round(prediction, 3), 'color': color}
+
+def extract_linkedin_job_urls(html_source):
+    # Define the regex pattern to match LinkedIn job URLs
+    pattern = r'href="(https://www\.linkedin\.com/jobs/view/[^\s"]+)"'
+    
+    # Find all matches in the HTML source
+    matches = re.findall(pattern, html_source)
+    
+    # Use a set to remove duplicates
+    unique_urls = set(matches)
+    
+    # Convert the set back to a list (if needed)
+    unique_urls_list = list(unique_urls)
+    
+    return unique_urls_list
+
+@app.post('/recommend')
+def recommend(data: dict):
+    logger.info("recommend endpoint called")
+    term = data.get("term", "")
+    if not term:
+        return JSONResponse(content={"error": "Job search term is required"}, status_code=400)
+        logger.error("No search term specified before calling Recommend")
+    
+    def convert_to_url_format(term):
+        return term.lower().replace(" ", "-")
+    
+    # Scrape LinkedIn for job postings based on the search term
+    jobs_prefix = convert_to_url_format(term)
+    search_url = f"https://www.linkedin.com/jobs/{jobs_prefix}-jobs?position=1&pageNum=0"
+    print(search_url)
+    #headers = {"User-Agent": "Mozilla/5.0"}
+    response = requests.get(search_url)
+    html = response.text
+    logger.info("Obtained recommendation page source")
+
+    # Parse the job postings from the HTML
+    jobs = extract_linkedin_job_urls(html)
+
+    logger.info(f"Obtained the following list of job posting URLs: {jobs}")
+    print(jobs)
+    
+    # Predict ratings for each job posting using multiprocessing
+    recommendations = []
+    with multiprocessing.Pool() as pool:
+        results = pool.map(generate_prediction_wrapper, jobs)
+    
+    # Collect results
+    for url, result in results:
+        if result is not None:
+            job = {}
+            job["url"] = url
+            job["rating"] = round(result[0], 2)
+            position_line = result[2]["posting_text"].split('\n')[0]
+            company_line = result[2]["posting_text"].split('\n')[1]
+            position = position_line.strip("position is ")
+            company = company_line.strip("company is ")
+            job["position"] = position
+            job["company"] = company
+            job["color"] = result[1]
+            recommendations.append(job)
+
+    # Sort the job postings by rating (highest first)
+    recommendations.sort(key=lambda x: x["rating"], reverse=True)
+
+    # Return the top 10 job postings
+    return JSONResponse(content={"recommendations": recommendations[:10]})
     
 
 @app.post('/submit-data')
