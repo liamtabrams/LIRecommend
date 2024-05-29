@@ -175,6 +175,13 @@
                 <button onclick="predict()">Predict Rating</button>
                 <div id="output">Predicted Rating: <span id="predicted-rating"></span></div>
             </div>
+            <div class="legend-container">
+                <p class="black-text">Rating Legend</p>
+                <p class="green-text">&#8805 3 - This would be a dream job or an optimal stepping stone in my career</p>
+                <p class="yellow-text">2 - This could be a decent fit but it's not my dream job</p>
+                <p class="orange-text">1 - I'd consider taking such a job under very specific circumstances</p>
+                <p class="red-text">&#8804 0 - I would never consider taking such a job</p>
+            </div>
         </div>
         <div class="right-container">
             <div class="form-container">
@@ -186,17 +193,41 @@
                     <ul id="recommend-links"></ul>
                 </div>
             </div>
-            <div class="legend-container">
-                <p class="black-text">Rating Legend</p>
-                <p class="green-text">&#8805 3 - This would be a dream job or an optimal stepping stone in my career</p>
-                <p class="yellow-text">2 - This could be a decent fit but it's not my dream job</p>
-                <p class="orange-text">1 - I'd consider taking such a job under very specific circumstances</p>
-                <p class="red-text">&#8804 0 - I would never consider taking such a job</p>
+            <div class="form-container">
+                <h2>Append to Dataset</h2>
+                <label for="collect-url">Enter job posting URL:</label>
+                <input type="text" id="collect-url" name="collect-url" placeholder="https://www.linkedin.com/jobs/view/the-rest">
+                <label for="collect-rating">Select rating:</label>
+                <select id="collect-rating" name="collect-rating">
+                    <option value="0">0</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                </select>
+                <button onclick="collectData()">Submit</button>
+                <div id="collect-output"></div>
             </div>
         </div>
     </div>
 
     <script>
+        // Function to handle drag start event
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.innerText);
+        }
+
+        // Function to handle drop event
+        function drop(ev) {
+            ev.preventDefault();
+            var data = ev.dataTransfer.getData("text");
+            document.getElementById("url").value = data;
+        }
+
+        // Function to handle drag over event
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
         function predict() {
             var urlInput = document.getElementById("url").value;
             var data = { "url": urlInput };
@@ -227,11 +258,11 @@
             var data = { "term": term };
             var loadingMessage = document.getElementById("loading-message");
             loadingMessage.style.display = "block"; // Show the loading message
-    
+
             // Clear previous recommendations
             var recommendLinks = document.getElementById("recommend-links");
             recommendLinks.innerHTML = '';
-    
+
             fetch('/recommend', {
                 method: 'POST',
                 headers: {
@@ -249,6 +280,13 @@
                     a.textContent = `${job.position} at ${job.company} (Rating: ${job.rating})`;
                     a.target = '_blank';
                     a.style.color = job.color; // Set text color according to job color
+
+                    // Add dragstart event listener
+                    a.addEventListener('dragstart', function(event) {
+                        // Set data to be dragged and dropped
+                        event.dataTransfer.setData('text/plain', job.url);
+                    });
+
                     li.appendChild(a);
                     recommendLinks.appendChild(li);
                 });
@@ -259,6 +297,31 @@
                 var recommendOutput = document.getElementById("recommend-output");
                 recommendOutput.innerText = "Error occurred. Please try again.";
                 recommendOutput.style.backgroundColor = "red"; // Set background color to red for error
+            });
+        }
+
+        function collectData() {
+            var urlInput = document.getElementById("collect-url").value;
+            var ratingInput = document.getElementById("collect-rating").value;
+            var data = {
+                "url": urlInput,
+                "rating": ratingInput
+            };
+            fetch('/submit-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById("collect-output").innerText = "Data submitted successfully.";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("collect-output").innerText = "Error occurred. Please try again.";
             });
         }
     </script>    
