@@ -16,6 +16,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates as templates
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse, StreamingResponse
 from openai import OpenAI
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import cross_val_score
+from sklearn.metrics import make_scorer, accuracy_score, mean_squared_error, mean_absolute_error
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import parallel_backend
 
 # Configure the logging
 logging.basicConfig(
@@ -390,107 +396,81 @@ def retrain_model():
     logger.info("Done with model evaluation")
     return results
 
-'''in this code we will use the entire dataset as a training set for the linear
-regression model'''
-
-def train_linreg(dataset_path):
-  #from sklearn.model_selection import train_test_split
-  from sklearn.feature_extraction.text import TfidfVectorizer
-  from sklearn.model_selection import cross_val_score
-  from sklearn.metrics import make_scorer, accuracy_score
-  from sklearn.linear_model import LinearRegression
-  from sklearn.preprocessing import LabelEncoder
-
-  # Define your custom scoring function
-  def custom_scoring_function(y_true, y_pred):
-    # Define your custom scoring logic
-    # For example, let's say you want to calculate the mean absolute error (MAE)
+def custom_scoring_function(y_true, y_pred):
     y_pred = np.clip(y_pred, 0, 3)
     y_pred = [round(pred) for pred in y_pred]
     accuracy = accuracy_score(y_true, y_pred)
-
     return accuracy
 
-  # Make a scorer from the custom scoring function
-  custom_scorer = make_scorer(custom_scoring_function, greater_is_better=True)
-  # Helper function to display key metrics for model performance.
-  def display_scores(scores, metric='rounded_accuracy'):
+def display_scores(scores, metric='rounded_accuracy'):
     if metric == 'rounded_accuracy':
-      #print('Accuracy of rounded and clipped predictions: results of 10-fold cross val')
-      logger.info('Accuracy of rounded and clipped predictions: results of 10-fold cross val')
+        logger.info('Accuracy of rounded and clipped predictions: results of 5-fold cross val')
     if metric == 'neg_mse':
-      #print('Neg mean squared error scores from 10-fold cross val')
-      logger.info('Neg mean squared error scores from 10-fold cross val')
+        logger.info('Neg mean squared error scores from 5-fold cross val')
     if metric == 'neg_mae':
-      #print('Neg mean absolute error scores from 10-fold cross val')
-      logger.info('Neg mean absolute error scores from 10-fold cross val')
-    #print("Scores:", scores)
+        logger.info('Neg mean absolute error scores from 5-fold cross val')
     logger.info(f"Scores: {scores}")
-    #print("Mean:", scores.mean())
     logger.info(f"Mean: {scores.mean()}")
-    #print("Standard Deviation:", scores.std())
     logger.info(f"Standard Deviation: {scores.std()}")
-  
-  dataset = pd.read_csv(dataset_path)
-  logger.info("read dataset into pandas dataframe")
 
-  # Step 1: Split data into training and testing sets
-  #X_train, X_test, y_train, y_test = train_test_split(dataset[['posting_text', 'min_salary', 'max_salary']], dataset['rating'], test_size=0.2, random_state=42)
+def train_linreg(dataset_path):
+    custom_scorer = make_scorer(custom_scoring_function, greater_is_better=True)
 
-  X = dataset[['posting_text', 'min_salary', 'max_salary']]
-  y = dataset['rating']
-  le = LabelEncoder()
-  y_train = le.fit_transform(dataset['rating'])
-  logger.info("label encoded the rating (target) column")
+    dataset = pd.read_csv(dataset_path)
+    logger.info("read dataset into pandas dataframe")
 
-  # Step 2: Initialize and fit TF-IDF vectorizer on the training data only
-  tfidf_vectorizer = TfidfVectorizer(max_features=5000)  # You can adjust max_features as needed
-  X_train_tfidf = tfidf_vectorizer.fit_transform(X['posting_text'])
-  logger.info("Fit new TFIDF vectorizer to entire dataset")
-  # Convert TF-IDF matrix to DataFrame
-  X_train_tfidf_df = pd.DataFrame(X_train_tfidf.toarray(), columns=tfidf_vectorizer.get_feature_names_out(), index=X.index)
-  logger.info("Converted new TFIDF matrix to dataframe")
+    X = dataset[['posting_text', 'min_salary', 'max_salary']]
+    y = dataset['rating']
+    le = LabelEncoder()
+    y_train = le.fit_transform(y)
+    logger.info("label encoded the rating (target) column")
 
-  # Step 3: Transform the test data using the fitted vectorizer
-  #X_test_tfidf = tfidf_vectorizer.transform(X_test['posting_text'])
-  # Convert TF-IDF matrix to DataFrame
-  #X_test_tfidf_df = pd.DataFrame(X_test_tfidf.toarray(), columns=tfidf_vectorizer.get_feature_names_out(), index=X_test.index)
+    tfidf_vectorizer = TfidfVectorizer(max_features=15000, ngram_range=(1, 3), stop_words='english')
+    X_train_tfidf = tfidf_vectorizer.fit_transform(X['posting_text'])
+    logger.info("Fit new TFIDF vectorizer to entire dataset")
 
-  new_df = X.drop(columns='posting_text')
-  X_train = pd.concat([new_df, X_train_tfidf_df], axis=1)
-  logger.info("generated new training dataframe after concatenating all feature columns except 'posting_text' with the new TFIDF dataframe")
+    X_train_tfidf_df = pd.DataFrame(X_train_tfidf.toarray(), columns=tfidf_vectorizer.get_feature_names_out(), index=X.index)
+    logger.info("Converted new TFIDF matrix to dataframe")
 
-  # Now X_train and X_test are ready to be passed to a model
-  model = LinearRegression()
-  model.fit(X_train, y_train)
-  logger.info("fit linear regression model to data")
-  logger.info("attempting to perform 10-fold cross val of rounded accuracy")
-  model_scores = cross_val_score(model, X_train, y_train, scoring=custom_scorer, cv = 10)
-  display_scores(model_scores, 'rounded_accuracy')
-  accuracy_avg = round(model_scores.mean()*100, 1)
-  accuracy_std = round(model_scores.std()*100, 1)
+    new_df = X.drop(columns='posting_text')
+    X_train = pd.concat([new_df, X_train_tfidf_df], axis=1)
+    logger.info("generated new training dataframe after concatenating all feature columns except 'posting_text' with the new TFIDF dataframe")
 
-  logger.info("attempting to perform 10-fold cross val of negative mean squared error")
-  model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv = 10)
-  display_scores(model_scores, 'neg_mse')
-  mse_avg = round(-1*model_scores.mean(), 3)
-  mse_std = round(model_scores.std(), 3)
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    logger.info("fit LinearRegression model to data")
 
-  logger.info("attempting to perform 10-fold cross val of negative mean absolute error")
-  model_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_absolute_error', cv = 10)
-  display_scores(model_scores, 'neg_mae')
-  mae_avg = round(-1*model_scores.mean(), 3)
-  mae_std = round(model_scores.std(), 3)
+    with parallel_backend('loky', n_jobs=-1):
+        accuracy_scores = cross_val_score(model, X_train, y_train, scoring=custom_scorer, cv=5)
+        mse_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)
+        mae_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_absolute_error', cv=5)
 
-  # Save the TFIDF model to a file
-  joblib.dump(tfidf_vectorizer, 'app/user_data/models/tfidf_vectorizer.joblib')
-  logger.info("saved new TFIDF vectorizer model to parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
+    display_scores(accuracy_scores, 'rounded_accuracy')
+    accuracy_avg = round(accuracy_scores.mean() * 100, 1)
+    accuracy_std = round(accuracy_scores.std() * 100, 1)
 
-  # Serialise model and dump on disk
-  joblib.dump(model, 'app/user_data/models/linreg_clf.joblib')
-  logger.info("saved new Linear Regression model 'app/user_data/models/linreg_clf.joblib'")
+    display_scores(mse_scores, 'neg_mse')
+    mse_avg = round(-1 * mse_scores.mean(), 3)
+    mse_std = round(mse_scores.std(), 3)
 
-  return {'accuracy_avg': accuracy_avg, 'accuracy_std': accuracy_std, 'mae_avg': mae_avg, 'mae_std': mae_std, 'mse_avg': mse_avg, 'mse_std': mse_std} 
+    display_scores(mae_scores, 'neg_mae')
+    mae_avg = round(-1 * mae_scores.mean(), 3)
+    mae_std = round(mae_scores.std(), 3)
+
+    joblib.dump(tfidf_vectorizer, 'app/user_data/models/tfidf_vectorizer.joblib')
+    logger.info("saved new TFIDF vectorizer model to parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
+
+    joblib.dump(model, 'app/user_data/models/linreg_clf.joblib')
+    logger.info("saved new Linear Regression model 'app/user_data/models/linreg_clf.joblib'")
+
+    return {
+        'accuracy_avg': accuracy_avg,
+        'accuracy_std': accuracy_std,
+        'mae_avg': mae_avg,
+        'mae_std': mae_std,
+        'mse_avg': mse_avg,
+        'mse_std': mse_std
+    }
 
 @app.get("/dataset")
 async def get_dataset():
