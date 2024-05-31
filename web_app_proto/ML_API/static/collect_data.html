@@ -219,7 +219,14 @@
             <h3>Model Performance Metrics</h3>
             <h4>What are good values for accuracy and error?</h4>
             <p>
-                There is inherent subjectivity in the application of the rating system and everyone will have their own unique corner cases which make modeling difficult. However, based on experiments of a user's drift over a 2-month period, the upper bound for accuracy is around 65% while the lower bounds for mean squared and absolute error are around .35. This means that a model achieving at least 60% accuracy and MAE and MSE's of less than .5 is doing quite well.
+                There is inherent subjectivity in the application of the rating system and everyone will have their own
+                 unique corner cases which make modeling difficult. However, based on experiments of a user's drift over
+                 a 2-month period, the upper bound for accuracy is around 65% while the lower bounds for mean squared and 
+                 absolute error are around .35. Thus, a model achieving at least 60% accuracy and MAEs (Mean Absolute Error) 
+                 and MSEs (Mean Squared Error) of less than .5 is doing quite well. We want to maximize the accuracy score 
+                 while minimizing the error scores. For the case of the Random Forest Classifier model, the MSE will always
+                 be greater than the MAE unless there are no predictions that are more than 1 rating point off, which is
+                 another indication the model is doing quite well. So we want the MAE and MSE values to not differ too much. 
             </p>
         </div>
     </div>
@@ -236,7 +243,7 @@
     <div class="download-options-container">
         <button onclick="downloadFile('dataset')">Download Dataset (CSV)</button>
         <button onclick="downloadFile('tfidf-model')">Download TFIDF Model</button>
-        <button onclick="downloadFile('linreg-model')">Download Linear Regression Model</button>
+        <button onclick="downloadFile('rf-model')">Download Random Forest Model</button>
     </div>
 
     <div class="download-all-button">
@@ -399,8 +406,8 @@
                 case 'tfidf-model':
                     url = '/download-tfidf-model';
                     break;
-                case 'linreg-model':
-                    url = '/download-linreg-model';
+                case 'rf-model':
+                    url = '/download-rf-model';
                     break;
             }
             window.location.href = url;

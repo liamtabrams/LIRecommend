@@ -20,6 +20,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import cross_val_score
 from sklearn.metrics import make_scorer, accuracy_score, mean_squared_error, mean_absolute_error
 from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import parallel_backend
 
@@ -261,7 +262,7 @@ def generate_prediction(url):
         try:
             datapoint = generate_dataset_input(url)
             logger.info("generated datapoint")
-            model = joblib.load('app/user_data/models/linreg_clf.joblib')
+            model = joblib.load('app/user_data/models/rf_clf.joblib')
             tfidf_vect = joblib.load('app/user_data/models/tfidf_vectorizer.joblib')
             logger.info("loaded pre-trained Linear Regression and TFIDF Vectorizer models")
             # Step 3: Transform the test data using the fitted vectorizer
@@ -342,7 +343,7 @@ def recommend(data: dict):
     
     # Collect results
     for url, result in results:
-        if result is not None:
+        if result is not None and result[0]%1 != 0: #if the model predicts exactly 0, 1, 2, or 3, we know it was likely already trained on the posting
             job = {}
             job["url"] = url
             job["rating"] = round(result[0], 2)
@@ -353,6 +354,7 @@ def recommend(data: dict):
             job["position"] = position
             job["company"] = company
             job["color"] = result[1]
+
             recommendations.append(job)
 
     # Sort the job postings by rating (highest first)
@@ -392,7 +394,8 @@ def append_datapoint(data: dict):
 @app.post('/retrain-model')
 def retrain_model():
     logger.info("Retrain model endpoint called")
-    results = train_linreg('app/user_data/dataset/myDataset.csv')
+    #results = train_linreg('app/user_data/dataset/myDataset.csv')
+    results = train_rfc('app/user_data/dataset/myDataset.csv')
     logger.info("Done with model evaluation")
     return results
 
@@ -412,6 +415,64 @@ def display_scores(scores, metric='rounded_accuracy'):
     logger.info(f"Scores: {scores}")
     logger.info(f"Mean: {scores.mean()}")
     logger.info(f"Standard Deviation: {scores.std()}")
+
+def train_rfc(dataset_path):
+
+    dataset = pd.read_csv(dataset_path)
+    logger.info("read dataset into pandas dataframe")
+
+    X = dataset[['posting_text', 'min_salary', 'max_salary']]
+    y = dataset['rating']
+    le = LabelEncoder()
+    y_train = le.fit_transform(y)
+    logger.info("label encoded the rating (target) column")
+
+    tfidf_vectorizer = TfidfVectorizer(max_features=15000, ngram_range=(1, 3), stop_words='english')
+    X_train_tfidf = tfidf_vectorizer.fit_transform(X['posting_text'])
+    logger.info("Fit new TFIDF vectorizer to entire dataset")
+
+    X_train_tfidf_df = pd.DataFrame(X_train_tfidf.toarray(), columns=tfidf_vectorizer.get_feature_names_out(), index=X.index)
+    logger.info("Converted new TFIDF matrix to dataframe")
+
+    new_df = X.drop(columns='posting_text')
+    X_train = pd.concat([new_df, X_train_tfidf_df], axis=1)
+    logger.info("generated new training dataframe after concatenating all feature columns except 'posting_text' with the new TFIDF dataframe")
+
+    model = RandomForestClassifier(max_depth=None,  min_samples_leaf=1, min_samples_split=2, n_estimators=300, bootstrap=False, criterion='entropy', class_weight='balanced')
+    model.fit(X_train, y_train)
+    logger.info("fit RFC model to data")
+
+    with parallel_backend('loky', n_jobs=-1):
+        accuracy_scores = cross_val_score(model, X_train, y_train, scoring='accuracy', cv=5)
+        mse_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)
+        mae_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_absolute_error', cv=5)
+
+    display_scores(accuracy_scores, 'rounded_accuracy')
+    accuracy_avg = round(accuracy_scores.mean() * 100, 1)
+    accuracy_std = round(accuracy_scores.std() * 100, 1)
+
+    display_scores(mse_scores, 'neg_mse')
+    mse_avg = round(-1 * mse_scores.mean(), 3)
+    mse_std = round(mse_scores.std(), 3)
+
+    display_scores(mae_scores, 'neg_mae')
+    mae_avg = round(-1 * mae_scores.mean(), 3)
+    mae_std = round(mae_scores.std(), 3)
+
+    joblib.dump(tfidf_vectorizer, 'app/user_data/models/tfidf_vectorizer.joblib')
+    logger.info("saved new TFIDF vectorizer model to parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
+
+    joblib.dump(model, 'app/user_data/models/rf_clf.joblib')
+    logger.info("saved new Linear Regression model 'app/user_data/models/rf_clf.joblib'")
+
+    return {
+        'accuracy_avg': accuracy_avg,
+        'accuracy_std': accuracy_std,
+        'mae_avg': mae_avg,
+        'mae_std': mae_std,
+        'mse_avg': mse_avg,
+        'mse_std': mse_std
+    }
 
 def train_linreg(dataset_path):
     custom_scorer = make_scorer(custom_scoring_function, greater_is_better=True)
@@ -461,7 +522,7 @@ def train_linreg(dataset_path):
     logger.info("saved new TFIDF vectorizer model to parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
 
     joblib.dump(model, 'app/user_data/models/linreg_clf.joblib')
-    logger.info("saved new Linear Regression model 'app/user_data/models/linreg_clf.joblib'")
+    logger.info("saved new Random forest classifier model 'app/user_data/models/linreg_clf.joblib'")
 
     return {
         'accuracy_avg': accuracy_avg,
@@ -490,10 +551,10 @@ def download_tfidf_model():
     file_path = 'app/user_data/models/tfidf_vectorizer.joblib'
     return FileResponse(file_path, media_type='application/octet-stream', filename='tfidf_vectorizer.joblib')
 
-@app.get("/download-linreg-model")
-def download_linreg_model():
-    file_path = 'app/user_data/models/linreg_clf.joblib'
-    return FileResponse(file_path, media_type='application/octet-stream', filename='linreg_clf.joblib')
+@app.get("/download-rf-model")
+def download_rf_model():
+    file_path = 'app/user_data/models/rf_clf.joblib'
+    return FileResponse(file_path, media_type='application/octet-stream', filename='rf_clf.joblib')
 
 @app.get("/download-all")
 async def download_all():
@@ -512,7 +573,7 @@ async def download_all():
         zip_file.write("app/user_data/models/tfidf_vectorizer.joblib", arcname="models/tfidf_vectorizer.joblib")
 
         # Add the linear regression model file to the 'models' folder in the zip file
-        zip_file.write("app/user_data/models/linreg_clf.joblib", arcname="models/linreg_clf.joblib")
+        zip_file.write("app/user_data/models/rf_clf.joblib", arcname="models/rf_clf.joblib")
 
     # Seek to the beginning of the in-memory byte stream
     zip_data.seek(0)

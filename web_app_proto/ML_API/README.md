@@ -22,7 +22,7 @@ Follow the official Docker installation guide for your specific Linux distributi
 
 1. **Download the Docker Image File**
 
-   Ensure you have `lirecommend.tar` file available on your machine. This file should be included in the repository or provided separately.
+   Ensure you have `lirecommend.tar` file available on your machine, and if you would like to start off with using the pregenerated models and dataset, extract and copy the user_data zip file provided with lirecommend to an appropriate folder on your machine and copy the absolute path to that directory. These files should be included in the repository or provided separately.
 
 2. **Load the Docker Image**
 
@@ -36,12 +36,12 @@ Follow the official Docker installation guide for your specific Linux distributi
 
 3. **Run the Docker Container**
 
-   After loading the image, start the Docker container using the following command:
+   After loading the image, start the Docker container using the following command.
 
    ```bash
-   docker run --name lirecommend-app -p 8000:8000 lirecommend
+   docker run -v /absolute/path/to/user_data:/code/app/user_data --name lirecommend-app -p 8000:8000 lirecommend
    ```
-
+   -v will mount your locally stored user_data directory (the path of which precedes ':') to the directory in the Docker container with the path that follows ':', and this volume will remain mounted until explicitly removed (which is not necessary) or overwritten the next time docker -v is run with the paths. The point being is that you won't have to worry about keeping your local user_data up-to-date while using the app, as this makes the files you mounted from your machine to the Docker service (i.e. user_data) stay in sync with any updates or modifications that get saved in the container mountpoint. This allows you to NOT have to go through the following steps to save data as you are constructing your dataset and training models in: manually downloading (either through the web app by clicking 'Download All' or Docker Desktop) user_data from the container, and copying that folder back to the same place each time. If a user's container is closed or deleted, or a user restarts their computer, they won't lose the data they generated from using the app.   
    --name: The desired name for the Docker container; 'lirecommend-app' provided as example name. 
    -p 8000:8000: Map port 8000 on your host to port 8000 in the container. Adjust the ports if necessary.
 

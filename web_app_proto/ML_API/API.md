@@ -6,11 +6,15 @@ To interact with LIRecommend using the APIs programmatically rather than the gra
 import json
 import requests
 
+# make a python dictionary
 data = {"features": ["https://www.linkedin.com/jobs/view/3917257078/?alternateChannel=search&refId=ZMANnVNE15NLEGtNemxpkw%3D%3D&trackingId=mkrEETO8St6Tm7udlXjJnQ%3D%3D"]}
 
+# this is the URL for the predict API
 url = 'http://0.0.0.0:8000/predict'
 
+# convert dictionary to correct JSON format
 data = json.dumps(data)
+# post the JSON data to the API endpoint
 response = requests.post(url, data)
 print(response.json()) #should print something like {'prediction': 1.2013245748404626, 'color': '#9e6138'}
 ```

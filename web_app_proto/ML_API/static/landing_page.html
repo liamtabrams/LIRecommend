@@ -43,10 +43,15 @@
 </head>
 <body>
     <h1>Welcome to LIRecommend!</h1>
-    <p>This tool provides rating predictions for job postings from LinkedIn. Simply enter the URL of a job posting, and the tool will predict the rating the user would give to the job. You can also collect data by submitting job URLs along with ratings to improve the prediction model. Please note that this tool only works when the job posting is opened in a new tab forcing the URL to start with "https://www.linkedin.com/jobs/view/" rather than "https://www.linkedin.com/jobs/collections/recommended/" which you get from viewing in LinkedIn's recommendation page.</p>
+    <p>This tool provides you with recommendations for job postings on LinkedIn after entering a search term, using a Random Forest 
+        Classifier model to predict what rating out of the possible options 0, 1, 2, or 3 the user would give to a given job posting. 
+        The dataset the model is trained on can be one you created from scratch or one of the pre-generated datasets that you can 
+        modify and build on. This tool also allows you to generate predictions for individual job postings by copying and pasting the 
+        correct posting URL into a box in the 'Recommend' page. The demo provides a visual step-by-step on how to use the different  
+    </p>
     <ul>
-        <li><a href="/static/index.html">Predict Rating</a></li>
-        <li><a href="/static/collect_data.html">Collect Data</a></li>
+        <li><a href="/static/index.html">Recommend</a></li>
+        <li><a href="/static/collect_data.html">View Dataset and Model Details</a></li>
     </ul>
 </body>
 </html>
