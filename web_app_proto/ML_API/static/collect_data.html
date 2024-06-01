@@ -212,7 +212,7 @@
                 <option value="3">3</option>
             </select>
             <button onclick="collectData()">Submit</button>
-            <button onclick="retrainModel()">Retrain Model/Get Model Info</button>
+            <button onclick="retrainModelEvaluate()">Retrain Model/Get Model Info</button>
             <div id="output"></div>
         </div>
         <div class="right-container">
@@ -283,9 +283,9 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script>
-        function retrainModel() {
+        function retrainModelEvaluate() {
             showLoadingMessage();
-            fetch('/retrain-model', {
+            fetch('/retrain-model-evaluate', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -397,6 +397,7 @@
             document.getElementById("collapsible-content").style.display = "block";
             fetchDataset();
         });
+        
         function downloadFile(type) {
             let url = '';
             switch (type) {

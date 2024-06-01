@@ -39,6 +39,21 @@
         a:hover {
             color: #0056b3;
         }
+        .video-container {
+            text-align: center; /* Align text to the right within the containers */
+            width: 50%; /* Adjust the width of the containers */
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+        .video-container video {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .video-container h3 {
+            margin-bottom: 0px;
+            font-size: 1.5em;
+        }
     </style>
 </head>
 <body>
@@ -47,11 +62,18 @@
         Classifier model to predict what rating out of the possible options 0, 1, 2, or 3 the user would give to a given job posting. 
         The dataset the model is trained on can be one you created from scratch or one of the pre-generated datasets that you can 
         modify and build on. This tool also allows you to generate predictions for individual job postings by copying and pasting the 
-        correct posting URL into a box in the 'Recommend' page. The demo provides a visual step-by-step on how to use the different  
+        correct posting URL into a box in the 'Recommend' page. The demo below provides a visual step-by-step on how to use the different
+        features provided in this tool.   
     </p>
     <ul>
         <li><a href="/static/index.html">Recommend</a></li>
         <li><a href="/static/collect_data.html">View Dataset and Model Details</a></li>
     </ul>
+    <div class="video-container">
+        <video controls>
+            <source src="/static/screen_recording_predict.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
 </body>
 </html>

@@ -23,6 +23,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import parallel_backend
+import math
 
 # Configure the logging
 logging.basicConfig(
@@ -252,7 +253,7 @@ def get_rating_color(rating):
     blue = int((rating / 3) * 19) + 49
     
     # Calculate the red component (255 for rating 0, 0 for rating 3)
-    red = 255 - green
+    red = 255 - green - 2*int(math.sqrt(blue))
     
     # Return the color as a hex code
     return f'#{red:02x}{green:02x}{blue:02x}'
@@ -279,7 +280,7 @@ def generate_prediction(url):
             logger.info(f"generated prediction {prediction} with the following datapoint: {X_test}")
             color = get_rating_color(prediction)
             logger.info("generated prediction and color code")
-            return prediction[0], color, datapoint
+            return int(prediction[0]), color, datapoint
         except:
           pass
 
@@ -293,7 +294,7 @@ def predict(data: dict):
     url = data["url"]
     logger.info(f"{url} successfully sent to backend")
     prediction, color, datapoint = generate_prediction(url)
-    return {'prediction': round(prediction, 3), 'color': color}
+    return {'prediction': prediction, 'color': color}
 
 def extract_linkedin_job_urls(html_source):
     # Define the regex pattern to match LinkedIn job URLs
@@ -343,10 +344,10 @@ def recommend(data: dict):
     
     # Collect results
     for url, result in results:
-        if result is not None and result[0]%1 != 0: #if the model predicts exactly 0, 1, 2, or 3, we know it was likely already trained on the posting
+        if result is not None:
             job = {}
             job["url"] = url
-            job["rating"] = round(result[0], 2)
+            job["rating"] = int(result[0])
             position_line = result[2]["posting_text"].split('\n')[0]
             company_line = result[2]["posting_text"].split('\n')[1]
             position = position_line.strip("position is ")
@@ -361,7 +362,7 @@ def recommend(data: dict):
     recommendations.sort(key=lambda x: x["rating"], reverse=True)
 
     # Return the top 10 job postings
-    return JSONResponse(content={"recommendations": recommendations[:10]})
+    return JSONResponse(content={"recommendations": recommendations[:15]})
     
 
 @app.post('/submit-data')
@@ -395,8 +396,15 @@ def append_datapoint(data: dict):
 def retrain_model():
     logger.info("Retrain model endpoint called")
     #results = train_linreg('app/user_data/dataset/myDataset.csv')
+    train_rfc('app/user_data/dataset/myDataset.csv', evaluate=False)
+    logger.info("Done with model training")
+
+@app.post('/retrain-model-evaluate')
+def retrain_model_evaluate():
+    logger.info("Retrain model evaluate endpoint called")
+    #results = train_linreg('app/user_data/dataset/myDataset.csv')
     results = train_rfc('app/user_data/dataset/myDataset.csv')
-    logger.info("Done with model evaluation")
+    logger.info("Done with model training and evaluation")
     return results
 
 def custom_scoring_function(y_true, y_pred):
@@ -416,8 +424,7 @@ def display_scores(scores, metric='rounded_accuracy'):
     logger.info(f"Mean: {scores.mean()}")
     logger.info(f"Standard Deviation: {scores.std()}")
 
-def train_rfc(dataset_path):
-
+def train_rfc(dataset_path, evaluate=True):
     dataset = pd.read_csv(dataset_path)
     logger.info("read dataset into pandas dataframe")
 
@@ -438,10 +445,22 @@ def train_rfc(dataset_path):
     X_train = pd.concat([new_df, X_train_tfidf_df], axis=1)
     logger.info("generated new training dataframe after concatenating all feature columns except 'posting_text' with the new TFIDF dataframe")
 
-    model = RandomForestClassifier(max_depth=None,  min_samples_leaf=1, min_samples_split=2, n_estimators=300, bootstrap=False, criterion='entropy', class_weight='balanced')
+    model = RandomForestClassifier(max_depth=None,  min_samples_leaf=1, min_samples_split=2, n_estimators=300, bootstrap=False, criterion='entropy')#, class_weight='balanced')
     model.fit(X_train, y_train)
     logger.info("fit RFC model to data")
+    
+    joblib.dump(tfidf_vectorizer, 'app/user_data/models/tfidf_vectorizer.joblib')
+    logger.info("saved new TFIDF vectorizer model parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
 
+    joblib.dump(model, 'app/user_data/models/rf_clf.joblib')
+    logger.info("saved new Random Forest model to 'app/user_data/models/rf_clf.joblib'")
+
+    if evaluate:
+      results = evaluate_rfc_performance(model, X_train, y_train)
+      return results
+
+
+def evaluate_rfc_performance(model, X_train, y_train):    
     with parallel_backend('loky', n_jobs=-1):
         accuracy_scores = cross_val_score(model, X_train, y_train, scoring='accuracy', cv=5)
         mse_scores = cross_val_score(model, X_train, y_train, scoring='neg_mean_squared_error', cv=5)
@@ -458,12 +477,6 @@ def train_rfc(dataset_path):
     display_scores(mae_scores, 'neg_mae')
     mae_avg = round(-1 * mae_scores.mean(), 3)
     mae_std = round(mae_scores.std(), 3)
-
-    joblib.dump(tfidf_vectorizer, 'app/user_data/models/tfidf_vectorizer.joblib')
-    logger.info("saved new TFIDF vectorizer model to parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
-
-    joblib.dump(model, 'app/user_data/models/rf_clf.joblib')
-    logger.info("saved new Linear Regression model 'app/user_data/models/rf_clf.joblib'")
 
     return {
         'accuracy_avg': accuracy_avg,
@@ -522,7 +535,7 @@ def train_linreg(dataset_path):
     logger.info("saved new TFIDF vectorizer model to parameters to 'app/user_data/models/tfidf_vectorizer.joblib'")
 
     joblib.dump(model, 'app/user_data/models/linreg_clf.joblib')
-    logger.info("saved new Random forest classifier model 'app/user_data/models/linreg_clf.joblib'")
+    logger.info("saved new linear regression model 'app/user_data/models/linreg_clf.joblib'")
 
     return {
         'accuracy_avg': accuracy_avg,
