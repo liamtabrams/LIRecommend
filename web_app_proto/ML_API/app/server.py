@@ -282,7 +282,9 @@ def generate_prediction(url):
             color = get_rating_color(prediction)
             logger.info("generated prediction and color code")
             return int(prediction[0]), color, datapoint
-        except:
+        except Exception as e:
+          logger.debug(f"ran into {e} when trying to generate prediction")
+          print(e)
           pass
 
 def generate_prediction_wrapper(args):
@@ -426,6 +428,8 @@ def append_datapoint(data: dict):
   
     #print(updated_df.tail())
 
+    return {'message': "success"}
+
 
 @app.post('/retrain-model')
 def retrain_model():
@@ -433,6 +437,7 @@ def retrain_model():
     #results = train_linreg('app/user_data/dataset/myDataset.csv')
     train_rfc('app/user_data/dataset/myDataset.csv', evaluate=False)
     logger.info("Done with model training")
+    return {'message': "success"}
 
 @app.post('/retrain-model-evaluate')
 def retrain_model_evaluate():

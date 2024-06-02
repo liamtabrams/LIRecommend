@@ -7,16 +7,16 @@ import json
 import requests
 
 # make a python dictionary
-data = {"features": ["https://www.linkedin.com/jobs/view/3917257078/?alternateChannel=search&refId=ZMANnVNE15NLEGtNemxpkw%3D%3D&trackingId=mkrEETO8St6Tm7udlXjJnQ%3D%3D"]}
+data = {"url": "https://www.linkedin.com/jobs/view/personal-assistant-at-insight-global-3937766346?position=2&pageNum=0&refId=sJXzlkIukBcy5NXp3x8bVg%3D%3D&trackingId=AtpylxKn25MVI210uE9ibw%3D%3D&trk=public_jobs_jserp-result_search-card"}
 
 # this is the URL for the predict API
-url = 'http://0.0.0.0:8000/predict'
+api_url = 'http://0.0.0.0:8000/predict'
 
 # convert dictionary to correct JSON format
 data = json.dumps(data)
 # post the JSON data to the API endpoint
-response = requests.post(url, data)
-print(response.json()) #should print something like {'prediction': 1.2013245748404626, 'color': '#9e6138'}
+response = requests.post(api_url, data)
+print(response.json()) #should print something like '''{'prediction': 0, 'color': '#c03131'}'''
 ```
 
 This general method can be used to access the different API endpoints of the application. If we wanted to instead, say, submit a new datapoint and retrain the model programmatically, we could use the following code to do this 
@@ -31,13 +31,13 @@ url = 'http://0.0.0.0:8000/submit-data'
 
 data = json.dumps(data)
 response = requests.post(url, data)
-print(response.json()) #should print None
+print(response.json()) #should print {'message': "success"}
 
 url = 'http://0.0.0.0:8000/retrain-model'
 data = {}
 data = json.dumps(data)
 response = requests.post(url, data)
-print(response.json()) '''should print something like {'accuracy_avg': 59.324324324324316, 'accuracy_std': 11.96772051990481, 'mae_avg': 0.5564076573245048, 'mae_std': 0.12388109200691212, 'mse_avg': 0.627168855240376, 'mse_std': 0.48269694288801385}'''
+print(response.json()) #should print {'message': "success"}
 ```
 
 See client.py. You can run that script on your local machine while the app is running to test that you have access to the API endpoints of the app. Just make sure you are using the correct base URL for the APIs. You will have to modify the URL's used in client.py which are all hard-coded if you chose something other than 8000:8000 for the -p option when you launched the app. 
