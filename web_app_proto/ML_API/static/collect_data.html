@@ -179,6 +179,19 @@
             border-radius: 10px;
             z-index: 1000; /* Ensure it is above other elements */
         }
+        #datasetLoadingMessage {
+            display: none; /* Initially hidden */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            font-size: 20px;
+            border-radius: 10px;
+            z-index: 1000; /* Ensure it is above other elements */
+        }
         /* Other CSS styles */
         .download-all-button {
             margin-top: 20px;
@@ -279,6 +292,7 @@
     </div>
 
     <div id="loadingMessage">Please wait while the model is being retrained and thoroughly evaluated...</div>
+    <div id="datasetLoadingMessage">Loading dataset...</div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
@@ -344,8 +358,8 @@
             return regex.test(url);
         }
 
-        function fetchDataset() {
-            var table = $('#dataset-table').DataTable();
+        function fetchDataset(table) {
+            showDatasetLoadingMessage();
             table.clear().draw();
             fetch(`/dataset`)
             .then(response => response.json())
@@ -358,17 +372,42 @@
                         row.rating
                     ]).draw();
                 });
+                hideDatasetLoadingMessage();
             })
             .catch(error => {
                 console.error('Error:', error);
                 alert("An error occurred while fetching the dataset.");
+                hideDatasetLoadingMessage();
             });
         }
+
+
+        // Global variable to track whether the dataset has been fetched
+        var datasetFetched = false;
 
         function toggleCollapsible() {
             var content = document.getElementById("collapsible-content");
             if (content.style.display === "none" || content.style.display === "") {
                 content.style.display = "block";
+                // Check if the dataset has been fetched
+                if (!datasetFetched) {
+                    // Initialize DataTable with loading message
+                    var table = $('#dataset-table').DataTable({
+                        "paging": true,
+                        "scrollY": "300px",
+                        "scrollCollapse": true,
+                        "autoWidth": true,
+                        "pageLength": 10,
+                        "lengthChange": false,
+                        "language": {
+                            "emptyTable": "Dataset loading..."
+                        }
+                    });
+                    // Fetch the dataset
+                    fetchDataset(table);
+                    // Set the flag to indicate that the dataset has been fetched
+                    datasetFetched = true;
+                }
             } else {
                 content.style.display = "none";
             }
@@ -382,20 +421,16 @@
             document.getElementById('loadingMessage').style.display = 'none';
         }
 
+        function showDatasetLoadingMessage() {
+            document.getElementById('datasetLoadingMessage').style.display = 'block';
+        }
+
+        function hideDatasetLoadingMessage() {
+            document.getElementById('datasetLoadingMessage').style.display = 'none';
+        }
+
         $(document).ready(function() {
-            $('#dataset-table').DataTable({
-                "paging": true,
-                "scrollY": "300px",
-                "scrollCollapse": true,
-                "autoWidth": true,
-                "pageLength": 10,
-                "lengthChange": false,
-                "language": {
-                    "emptyTable": "Dataset loading..."
-                }
-            });
-            document.getElementById("collapsible-content").style.display = "block";
-            fetchDataset();
+            document.getElementById("collapsible-content").style.display = "none"; // Start hidden
         });
         
         function downloadFile(type) {

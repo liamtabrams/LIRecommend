@@ -135,7 +135,7 @@
             color: rgb(20, 128, 20);
         }
         .yellow-text {
-            color: rgba(136, 144, 1, 0.604);
+            color: rgba(119, 126, 0, 0.604);
         }
         .orange-text {
             color: rgb(195, 114, 0);
@@ -214,6 +214,14 @@
             font-weight: bold;
             position: absolute;
         }
+        .remove-icon {
+            margin-left: 10px;
+            color: red; /* Set color of the icon */
+            cursor: pointer; /* Change cursor to pointer on hover */
+        }
+        .remove-icon:hover {
+            color: darkred; /* Change color on hover */
+        }
     </style>
 </head>
 <body>
@@ -225,7 +233,7 @@
                 <label for="recommend-term">Enter job search term:</label>
                 <input type="text" id="recommend-term" name="recommend-term" placeholder="e.g., Software Engineer">
                 <button onclick="recommend()">Recommend</button>
-                <div id="loading-message">Please wait a few minutes while we find the best matches for you...</div>
+                <div id="loading-message">Please wait a minute while we find the best matches for you...</div>
                 <div id="recommend-output">
                     <ul id="recommend-links"></ul>
                 </div>
@@ -362,19 +370,22 @@
                 loadingMessage.style.display = "none"; // Hide the loading message
                 data.recommendations.forEach(function(job) {
                     var li = document.createElement('li');
+
                     var a = document.createElement('a');
                     a.href = job.url;
                     a.textContent = `${job.position} at ${job.company} (Rating: ${job.rating})`;
                     a.target = '_blank';
                     a.style.color = job.color; // Set text color according to job color
 
-                    // Add dragstart event listener
-                    a.addEventListener('dragstart', function(event) {
-                        // Set data to be dragged and dropped
-                        event.dataTransfer.setData('text/plain', job.url);
-                    });
+                    // Create icon for remove button
+                    var removeIcon = document.createElement('i');
+                    removeIcon.className = 'fas fa-times remove-icon';
+                    removeIcon.onclick = function() {
+                        removeRecommendation(li, job);
+                    };
 
                     li.appendChild(a);
+                    li.appendChild(removeIcon);
                     recommendLinks.appendChild(li);
                 });
             })
@@ -386,6 +397,32 @@
                 recommendOutput.style.backgroundColor = "red"; // Set background color to red for error
             });
         }
+
+        function removeRecommendation(listItem, jobData) {
+            // Remove the list item from the DOM
+            listItem.remove();
+
+            // Extract relevant data
+            var position = jobData.position;
+            var company = jobData.company;
+
+            // Send the job data to the server for blacklisting
+            fetch('/blacklist', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({position_name: position, company: company })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Job blacklisted:', data);
+            })
+            .catch(error => {
+                console.error('Error blacklisting job:', error);
+            });
+        }
+
 
         function collectData() {
             var urlInput = document.getElementById("url").value;

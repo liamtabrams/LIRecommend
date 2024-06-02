@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 import multiprocessing
 import io
 import zipfile
+import csv
 from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates as templates
@@ -356,13 +357,47 @@ def recommend(data: dict):
             job["company"] = company
             job["color"] = result[1]
 
-            recommendations.append(job)
+            # Check if the recommendation matches any row in the blacklist CSV
+            with open("app/user_data/blacklist/blacklist.csv", mode="r") as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    if (position == row["position_name"] and 
+                        company == row["company"]):
+                        break  # Skip this recommendation if it's blacklisted
+                else:
+                    recommendations.append(job)
 
     # Sort the job postings by rating (highest first)
     recommendations.sort(key=lambda x: x["rating"], reverse=True)
 
     # Return the top 10 job postings
     return JSONResponse(content={"recommendations": recommendations[:15]})
+
+@app.post("/blacklist/")
+async def add_to_blacklist(data: dict):
+    logger.info("blacklist endpoint called")
+    position_name = data.get("position_name")
+    company = data.get("company")
+    
+    # Check if any of the required fields are missing
+    if not (position_name and company):
+        logger.debug(f"Required fields missing in {data}")
+        return {"message": "Invalid request. Required fields missing."}
+    
+    # Add the data to the blacklist.csv file
+    with open("app/user_data/blacklist/blacklist.csv", mode="a", newline="") as file:
+        fieldnames = ["position_name", "company"]
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+
+        # Write headers if the file is empty
+        if file.tell() == 0:
+            writer.writeheader()
+
+        # Write the new row
+        writer.writerow({"position_name": position_name, "company": company})
+
+    logger.info(f"Added URL {position_name} at {company} to blacklist")
+    return {"message": f"{position_name} at {company} added to blacklist"}
     
 
 @app.post('/submit-data')
