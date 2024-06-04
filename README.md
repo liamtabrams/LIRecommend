@@ -30,7 +30,7 @@ UPDATE: I am currently developing the web tool as a FastAPI application deployed
 
 ## Summary of important/notable files and folders
 
--**https://github.com/liamtabrams/LIRecommend/tree/main/web_app_proto/ML_API** is where I am currently developing the FastAPI application I am deploying inside a Docker container.
+-**https://github.com/liamtabrams/LIRecommend/tree/main/web_app_proto/ML_API** is where the source for the LIRecommend app lives as well as the Docker image used to containerize the application. There are instructions there for how to run the application from the Docker container.
 
 -**https://github.com/liamtabrams/LIRecommend/blob/main/parse_LI_jobs.ipynb** is the notebook I did most of the early prototyping a preliminary data analyis in. It is quite a massive notebook and will likely need to be broken up into multiple notebooks so that the reader isn't overwhelmed having to scroll through this one notebook. 
 
