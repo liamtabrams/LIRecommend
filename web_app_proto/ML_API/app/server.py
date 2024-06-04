@@ -373,7 +373,7 @@ def recommend(data: dict):
     recommendations.sort(key=lambda x: x["rating"], reverse=True)
 
     # Return the top 10 job postings
-    return JSONResponse(content={"recommendations": recommendations[:15]})
+    return JSONResponse(content={"recommendations": recommendations[:25]})
 
 @app.post("/blacklist/")
 async def add_to_blacklist(data: dict):
