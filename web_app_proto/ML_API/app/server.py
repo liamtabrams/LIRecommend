@@ -447,6 +447,9 @@ def retrain_model_evaluate():
     logger.info("Done with model training and evaluation")
     return results
 
+'''this function was used for evaluating accuracy of predictions from linear regression model, but we
+later on switched to a Random Forest classifier model which warrants normal scoring for accuracy, so
+this function is currently not used in the application'''
 def custom_scoring_function(y_true, y_pred):
     y_pred = np.clip(y_pred, 0, 3)
     y_pred = [round(pred) for pred in y_pred]
@@ -596,21 +599,25 @@ async def get_dataset():
 
 @app.get("/download-dataset")
 def download_dataset():
+    logger.info("download dataset endpoint called")
     file_path = 'app/user_data/dataset/myDataset.csv'
     return FileResponse(file_path, media_type='text/csv', filename='myDataset.csv')
 
 @app.get("/download-tfidf-model")
 def download_tfidf_model():
+    logger.info("download TFIDF model endpoint called")
     file_path = 'app/user_data/models/tfidf_vectorizer.joblib'
     return FileResponse(file_path, media_type='application/octet-stream', filename='tfidf_vectorizer.joblib')
 
 @app.get("/download-rf-model")
 def download_rf_model():
+    logger.info("download random forest model endpoint called")
     file_path = 'app/user_data/models/rf_clf.joblib'
     return FileResponse(file_path, media_type='application/octet-stream', filename='rf_clf.joblib')
 
 @app.get("/download-all")
 async def download_all():
+    logger.info("download all endpoint called")
     # Create an in-memory byte stream to hold the zip file
     zip_data = io.BytesIO()
 
@@ -628,6 +635,7 @@ async def download_all():
         # Add the linear regression model file to the 'models' folder in the zip file
         zip_file.write("app/user_data/models/rf_clf.joblib", arcname="models/rf_clf.joblib")
 
+    logger.info("wrote all data to zip file")
     # Seek to the beginning of the in-memory byte stream
     zip_data.seek(0)
 
