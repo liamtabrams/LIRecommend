@@ -22,7 +22,7 @@ Follow the official Docker installation guide for your specific Linux distributi
 
 1. **Download the Docker Image File**
 
-   Ensure you have `lirecommend.tar` file available on your machine, and if you would like to start off with using the pregenerated models and dataset, extract and copy the user_data zip file provided with lirecommend to an appropriate folder on your machine and copy the absolute path to that directory. These files should be included in the repository or provided separately.
+   Ensure you have `lirecommend.tar` file available on your machine, and if you would like to start off with using the pregenerated models and dataset, make sure to save the user_data folder that lives in this repo at the same level as 'ML_API' to a desired location on your local machine, and copy the path to where you chose to save it. 'lirecommend.tar' will be distributed upon request since it is a large file and users will have the ability to build their own images themselves as ML_API is essentially a development sandbox.  
 
 2. **Load the Docker Image**
 
