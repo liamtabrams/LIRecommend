@@ -78,6 +78,9 @@ in the root directory of the cloned repository.
 
     Open a Chrome browser (another browser MIGHT work but is not supported by LIRecommend currently) and go to http://localhost:8000/static/landing_page.html to access the application.
 
+### FOR MORE INFO ###
 
+see https://github.com/liamtabrams/LIRecommend/blob/main/archive/README.md for an overview of the vision and goals behind this project as well as some of the implementation details, plus summaries of the most noteworthy files and directories in this repository. 
 
+also there are screen recordings of me using the app in https://github.com/liamtabrams/LIRecommend/tree/main/static for those that would like to see what the app does before deciding if they want to use it. 
    
