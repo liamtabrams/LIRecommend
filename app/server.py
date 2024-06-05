@@ -143,7 +143,7 @@ def generate_salary_json_file(posting_ind, salary_val):
 
   client = OpenAI(
     # This is the default and can be omitted
-    api_key="sk-proj-2Iut0hiaVnKHtMPvhKcqT3BlbkFJ4bGC2VbEkNT1SN2eYghm",
+    api_key="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",
   )
 
   chat_completion = client.chat.completions.create(
