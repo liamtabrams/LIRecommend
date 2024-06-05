@@ -1,12 +1,12 @@
-# Note: Important Project Status Update #
+### Note: Important Project Status Update ###
 
-##** Please Read Before Proceeding ** ##
+# PLEASE READ BEFORE PROCEEDING #
 
-### Attention Visitors and Potential Contributors ###
+## Attention Visitors and Potential Contributors ##
 
 This repository is currently in a transitional phase, and there are critical updates underway regarding the security and stability of the project. As of now, there is a pending TODO which is to implement robust measures to safeguard sensitive information, particularly the OpenAI API key utilized within this project.
 
-### Request for Collaboration Hold: ###
+## Request for Collaboration Hold: ##
 
 **I kindly request that you refrain from cloning or pushing to this repository until further notice, but it will remain public for educational and promotional purposes. This precautionary measure is essential to make sure the app can continue to work for everyone while the repo is in the state it's in currently.**
 
