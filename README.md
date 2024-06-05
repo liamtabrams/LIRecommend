@@ -22,7 +22,8 @@ Follow the official Docker installation guide for your specific Linux distributi
 
 1. **Download the Docker Image File (or build)**
 
-   Ensure you have `lirecommend.tar` file available on your machine, and if you would like to start off with using the pregenerated models and dataset, make sure to save the user_data folder provided in this repo to a desired location on your local machine, and copy the path to where you chose to save it. 'lirecommend.tar' will be distributed upon request since the file is too large to be stored in this repo. When this repo is made public, users should be able to clone the repo and build the LIRecommend Docker image themselves by running    ```bash
+   Ensure you have `lirecommend.tar` file available on your machine, and if you would like to start off with using the pregenerated models and dataset, make sure to save the user_data folder provided in this repo to a desired location on your local machine, and copy the path to where you chose to save it. 'lirecommend.tar' will be distributed upon request since the file is too large to be stored in this repo. When this repo is made public, users should be able to clone the repo and build the LIRecommend Docker image themselves by running
+   ```bash
    docker build -t lirecommend .
    ```
 in the root directory of the cloned repository.
