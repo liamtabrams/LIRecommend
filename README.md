@@ -8,7 +8,7 @@ This repository is currently in a transitional phase, and there are critical upd
 
 ## Request for Collaboration Hold: ##
 
-**I kindly request that you refrain from cloning or pushing to this repository until further notice, but it will remain public for educational and promotional purposes. This precautionary measure is essential to make sure the app can continue to work for everyone while the repo is in the state it's in currently.**
+<span style="color:orange;">**I kindly request that you refrain from cloning or pushing to this repository until further notice, but it will remain public for educational and promotional purposes. This precautionary measure is essential to make sure the app can continue to work for everyone while the repo is in the state it's in currently.**</span>
 
 ### Only 1 Option Right Now to Play With App: ###
 
