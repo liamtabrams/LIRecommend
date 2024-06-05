@@ -20,11 +20,17 @@ Follow the official Docker installation guide for your specific Linux distributi
 
 ## Running the Application
 
-1. **Download the Docker Image File**
+1. **Download the Docker Image File (or build)**
 
-   Ensure you have `lirecommend.tar` file available on your machine, and if you would like to start off with using the pregenerated models and dataset, make sure to save the user_data folder that lives in this repo at the same level as 'ML_API' to a desired location on your local machine, and copy the path to where you chose to save it. 'lirecommend.tar' will be distributed upon request since it is a large file and users will have the ability to build their own images themselves as ML_API is essentially a development sandbox.  
+   Ensure you have `lirecommend.tar` file available on your machine, and if you would like to start off with using the pregenerated models and dataset, make sure to save the user_data folder provided in this repo to a desired location on your local machine, and copy the path to where you chose to save it. 'lirecommend.tar' will be distributed upon request since the file is too large to be stored in this repo. When this repo is made public, users should be able to clone the repo and build the LIRecommend Docker image themselves by running    ```bash
+   docker build -t lirecommend .
+   ```
+in the root directory of the cloned repository.
 
-2. **Load the Docker Image**
+2. **Ensure user_data is prepared properly**
+   You need to have a folder on your computer called 'user_data' that contains the following subfolders: 'blacklist', 'dataset', and 'models'. And those folders need to contain specific files. Thus, copy the user_data folder provided in this repo to a desired location on your local machine and note the absolute path. If you do not want to customize the dataset prior to launching the app for the first time, user_data should be ready for you to volume mount to the container you will run the app in (the volume mounting will be fully explained in Step 4). If you do want to do something like clear the dataset or adjust some of the labels for some of its existing datapoints (which you are allowed to do at any time), you can do that by directly modifying the dataset.csv file that is inside the dataset folder in 'user_data'. Just make sure not to change the structure of the CSV file or types and ranges of data being used in each column of the csv file, as well as to not corrupt the information that currently exists in the feature columns (non-rating columns) for the kept datapoints.   
+
+3. **Load the Docker Image (if not building from sandbox)**
 
    Open a terminal or command prompt and navigate to the directory containing `lirecommend.tar`. Run the following command to load the Docker image:
 
@@ -34,9 +40,9 @@ Follow the official Docker installation guide for your specific Linux distributi
 
    This command loads the Docker image from the lirecommend.tar file into your local Docker repository.
 
-3. **Run the Docker Container**
+4. **Run the Docker Container**
 
-   After loading the image, start the Docker container using the following command.
+   After loading or building the image, start the Docker container using the following command.
 
    ```bash
    docker run -v /absolute/path/to/user_data:/code/app/user_data --name lirecommend-app -p 8000:8000 lirecommend
@@ -45,7 +51,7 @@ Follow the official Docker installation guide for your specific Linux distributi
    --name: The desired name for the Docker container; 'lirecommend-app' provided as example name. 
    -p 8000:8000: Map port 8000 on your host to port 8000 in the container. Adjust the ports if necessary.
 
-3. **Access the Application**
+5. **Access the Application**
 
     Open a Chrome browser (another browser MIGHT work but is not supported by LIRecommend currently) and go to http://localhost:8000/static/landing_page.html to access the application.
 
