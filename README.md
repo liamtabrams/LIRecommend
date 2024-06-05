@@ -1,6 +1,6 @@
 # Note: Important Project Status Update #
 
-## Please Read Before Proceeding ##
+##** Please Read Before Proceeding ** ##
 
 ### Attention Visitors and Potential Contributors ###
 
