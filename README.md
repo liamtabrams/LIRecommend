@@ -1,3 +1,25 @@
+# Note: Important Project Status Update #
+
+## Please Read Before Proceeding ##
+
+### Attention Visitors and Potential Contributors ###
+
+This repository is currently in a transitional phase, and there are critical updates underway regarding the security and stability of the project. As of now, there is a pending TODO which is to implement robust measures to safeguard sensitive information, particularly the OpenAI API key utilized within this project.
+
+### Request for Collaboration Hold: ###
+
+**I kindly request that you refrain from cloning or pushing to this repository until further notice, but it will remain public for educational and promotional purposes. This precautionary measure is essential to make sure the app can continue to work for everyone while the repo is in the state it's in currently.**
+
+### Only 1 Option Right Now to Play With App: ###
+
+In the meantime, if you wish to explore or utilize the lirecommend application, please reach out to me directly at **liamtabrams@gmail.com** to request access to the necessary application files, including the Docker build .tar file and the user_data folder. I would be more than happy to assist you and provide the required resources for your experimentation or usage of this tool.
+
+## Stay Updated!!! ##
+
+I appreciate your patience and understanding as I try to balance and weigh the following priorities: submitting this as my capstone project in order to complete the UCSD ML Engineering Bootcamp, seeking employment, and further developing and improving on this project. Please stay tuned for updates regarding the availability of this repository for collaborative contributions.
+
+Thank you for your cooperation and continued interest in my project.
+
 # LIRecommend
 
 This README provides instructions on how to run LIRecommend using Docker.
