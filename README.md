@@ -20,8 +20,9 @@ I appreciate your patience and understanding as I try to balance and weigh the f
 
 Thank you for your cooperation and continued interest in my project.
 
-# LIRecommend![Image 6-5-24 at 10 29 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/86296cae-4c3f-442d-b643-62bbfcd1fe18)
+# LIRecommend
 
+![Image 6-5-24 at 10 04 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/4267a5b6-a478-443d-b802-f0d7652b785d)
 
 This README provides instructions on how to run LIRecommend using Docker.
 
@@ -42,6 +43,8 @@ This README provides instructions on how to run LIRecommend using Docker.
 Follow the official Docker installation guide for your specific Linux distribution: [Docker Installation Guide](https://docs.docker.com/engine/install/).
 
 ## Running the Application
+
+![Image 6-5-24 at 10 23 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/01f75293-7e37-41d2-ba1a-8e0c2d23492a)
 
 1. **Download the Docker Image File (or build)**
 
@@ -78,6 +81,12 @@ in the root directory of the cloned repository.
 5. **Access the Application**
 
     Open a Chrome browser (another browser MIGHT work but is not supported by LIRecommend currently) and go to http://localhost:8000/static/landing_page.html to access the application.
+
+![Image 6-5-24 at 10 29 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/86296cae-4c3f-442d-b643-62bbfcd1fe18)
+
+![Image 6-5-24 at 10 26 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/654d36a2-77b4-49e6-af7a-bfe5eb592f2c)
+
+![Image 6-5-24 at 10 24 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/58976bfb-19fd-4e0f-adff-0810a13a32cf)
 
 ### FOR MORE INFO ###
 
