@@ -20,7 +20,8 @@ I appreciate your patience and understanding as I try to balance and weigh the f
 
 Thank you for your cooperation and continued interest in my project.
 
-# LIRecommend
+# LIRecommend![Image 6-5-24 at 10 29 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/86296cae-4c3f-442d-b643-62bbfcd1fe18)
+
 
 This README provides instructions on how to run LIRecommend using Docker.
 
