@@ -1,25 +1,3 @@
-### Note: Important Project Status Update ###
-
-# PLEASE READ BEFORE PROCEEDING #
-
-## Attention Visitors and Potential Contributors ##
-
-This repository is currently in a transitional phase, and there are critical updates underway regarding the security and stability of the project. As of now, there is a pending TODO which is to implement robust measures to safeguard sensitive information, particularly the OpenAI API key utilized within this project.
-
-## Request for Collaboration Hold: ##
-
-**I kindly request that you refrain from cloning from, pushing to, or downloading anything directly from this repository until further notice, but it will remain public for people to view. This precautionary measure is essential to make sure the app can continue to work for everyone while the repo is in the state it's in, since currently it stores the OpenAI API key in public view and Open AI will automatically deactivate the API key if any data at all flows between a remote device and the repo through public access (including my own device). It will break every time data is pushed or pulled from this repository using public access, including individual file downloads. So if the app is broken and Recommending returns an Error, it's very likely a new OpenAI API key needs to be generated for the project, that key needs to be pushed back to this repo privately, and then a new Docker image needs to be rebuilt with the new key inside it and redistributed. Thus, I would like prospective users to be aware and respectful of this until this issue is properly addressed.**
-
-### Only 1 Option Right Now to Play With App: ###
-
-In the meantime, if you wish to explore or utilize the lirecommend application, please reach out to me directly at **liamtabrams@gmail.com** to request access to the necessary application files, including the Docker build .tar file and the user_data folder. I would be more than happy to assist you and provide the required resources for your experimentation or usage of this tool.
-
-## Stay Updated!!! ##
-
-I appreciate your patience and understanding as I try to balance and weigh the following priorities: submitting this as my capstone project in order to complete the UCSD ML Engineering Bootcamp, seeking employment, and further developing and improving on this project. Please stay tuned for updates regarding the availability of this repository for collaborative contributions.
-
-Thank you for your cooperation and continued interest in my project.
-
 # LIRecommend
 
 ![Image 6-5-24 at 10 04 PM](https://github.com/liamtabrams/LIRecommend/assets/34357178/4267a5b6-a478-443d-b802-f0d7652b785d)
