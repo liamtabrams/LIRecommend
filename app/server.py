@@ -136,6 +136,15 @@ def scrape_from_link(url):
   logger.info(f"done scraping text from {url}")
   return text_file_path, posting_ind
 
+# Function to read the API key from a text file
+def read_api_key(file_path):
+  with open(file_path, 'r') as file:
+    api_key = file.read().strip()
+  return api_key
+
+# Read the API key from the text file
+api_key = read_api_key('app/openai_key.txt')
+
 def generate_salary_json_file(posting_ind, salary_val):
   prompt = "Take the following python data and infer the minimum and maximum of the salary range, and fill out their values as floating point numbers with three decimal places in units of thousands in a JSON dictionary, with 'salary_min' and 'salary_max' being the keys. If the data given is ['$150,000.00/yr - $220,000.00/yr'] then you should return {'salary_min': 150, 'salary_max': 220}, but make sure to use double quotes to enclose the key names. If you infer that info is in dollars per hour, convert the numbers to annual salary in thousands so output is same regardless of given units. Note that $48/hr is equal to $100,000/yr. Put 'N/A' under the fields if the required information is not given. If only one number is given put it under 'salary_max'. Return only the JSON dictionary. I want you to do it, not to tell me how to code it. I want you to do it for: "
 
@@ -143,7 +152,7 @@ def generate_salary_json_file(posting_ind, salary_val):
 
   client = OpenAI(
     # This is the default and can be omitted
-    api_key="sk-proj-o3lG845yzJlLnrHDoq4WT3BlbkFJLdTwSW2NqoylF9oxrjrr",
+    api_key=api_key,
   )
 
   chat_completion = client.chat.completions.create(
