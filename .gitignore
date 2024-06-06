@@ -1,2 +1,5 @@
 # Ignore Mac system files
 .DS_Store
+
+# Ignore the API key file
+openai_key.txt
