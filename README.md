@@ -8,7 +8,7 @@ This repository is currently in a transitional phase, and there are critical upd
 
 ## Request for Collaboration Hold: ##
 
-**I kindly request that you refrain from cloning or pushing to this repository until further notice, but it will remain public for educational and promotional purposes. This precautionary measure is essential to make sure the app can continue to work for everyone while the repo is in the state it's in currently.**
+**I kindly request that you refrain from cloning from, pushing to, or downloading anything directly from this repository until further notice, but it will remain public for people to view. This precautionary measure is essential to make sure the app can continue to work for everyone while the repo is in the state it's in, since currently it stores the OpenAI API key in public view and Open AI will automatically deactivate the API key if any data at all flows between a remote device and the repo through public access (including my own device). It will break every time data is pushed or pulled from this repository using public access, including individual file downloads. So if the app is broken and Recommending returns an Error, it's very likely a new OpenAI API key needs to be generated for the project, that key needs to be pushed back to this repo privately, and then a new Docker image needs to be rebuilt with the new key inside it and redistributed. Thus, I would like prospective users to be aware and respectful of this until this issue is properly addressed.**
 
 ### Only 1 Option Right Now to Play With App: ###
 
@@ -81,6 +81,4 @@ in the root directory of the cloned repository.
 ### FOR MORE INFO ###
 
 see https://github.com/liamtabrams/LIRecommend/blob/main/archive/README.md for an overview of the vision and goals behind this project as well as some of the implementation details, plus summaries of the most noteworthy files and directories in this repository. 
-
-also there are screen recordings of me using the app in https://github.com/liamtabrams/LIRecommend/tree/main/static for those that would like to see what the app does before deciding if they want to use it. 
    
