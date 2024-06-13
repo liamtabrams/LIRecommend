@@ -40,5 +40,5 @@ response = requests.post(url, data)
 print(response.json()) #should print {'message': "success"}
 ```
 
-See client.py. You can run that script on your local machine while the app is running to test that you have access to the API endpoints of the app. Just make sure you are using the correct base URL for the APIs. You will have to modify the URL's used in client.py which are all hard-coded if you chose something other than 8000:8000 for the -p option when you launched the app. 
+See client.py. You can run that script on your local machine while the app is running to test that you have access to the API endpoints of the app. Just make sure you are using the correct base URL for the APIs. You will have to modify the URLs used in client.py which are all hard-coded if you chose something other than 8000:8000 for the -p option when you launched the app. 
 

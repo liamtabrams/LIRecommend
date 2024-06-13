@@ -70,3 +70,4 @@ in the root directory of the cloned repository. However if you do intend to buil
 
 see https://github.com/liamtabrams/LIRecommend/blob/main/archive/README.md for an overview of the vision and goals behind this project as well as some of the implementation details, plus summaries of the most noteworthy files and directories in this repository. 
    
+Screen recordings are featured on LIRecommend's landing page to help demonstrate its usage, but if you would like to gain a better understanding of the app without actually trying it out for yourself, you can download the mp4s from https://github.com/liamtabrams/LIRecommend/tree/main/static and then view them.
