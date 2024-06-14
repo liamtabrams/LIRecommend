@@ -145,10 +145,10 @@ def read_api_key(file_path):
 # Read the API key from the text file
 api_key = read_api_key('app/openai_key.txt')
 
-def generate_salary_json_file(posting_ind, salary_val):
-  prompt = "Take the following python data and infer the minimum and maximum of the salary range, and fill out their values as floating point numbers with three decimal places in units of thousands in a JSON dictionary, with 'salary_min' and 'salary_max' being the keys. If the data given is ['$150,000.00/yr - $220,000.00/yr'] then you should return {'salary_min': 150, 'salary_max': 220}, but make sure to use double quotes to enclose the key names. If you infer that info is in dollars per hour, convert the numbers to annual salary in thousands so output is same regardless of given units. Note that $48/hr is equal to $100,000/yr. Put 'N/A' under the fields if the required information is not given. If only one number is given put it under 'salary_max'. Return only the JSON dictionary. I want you to do it, not to tell me how to code it. I want you to do it for: "
+def generate_salary_json_file(posting_ind, posting_text):
+  prompt = "Take the following job posting and infer the minimum and maximum of the salary range, and fill out their values as floating point numbers with three decimal places in units of thousands in a JSON dictionary, with 'salary_min' and 'salary_max' being the keys. If the posting says 'The compensation range for this position is between $150,000.00/yr and $220,000.00/yr' then you should return {'salary_min': 150, 'salary_max': 220}, but make sure to use double quotes to enclose the key names. If you infer that info is in dollars per hour, convert the numbers to annual salary in thousands so output is same regardless of given units. Note that $48/hr is equal to $100,000/yr. Put 'N/A' under the fields if the required information is not given. If only one number is given put it under 'salary_max'. Return only the JSON dictionary. I want you to do it, not to tell me how to code it. I want you to do it for: "
 
-  prompt = prompt + "/n" + str(salary_val)
+  prompt = prompt + "/n" + posting_text
 
   client = OpenAI(
     # This is the default and can be omitted
@@ -183,14 +183,11 @@ def generate_dataset_input(url):
   with open(text_file_path, "r") as f:
     file_contents = f.read()
     f.seek(0)
-    lines = f.readlines()
 
   datapoint_dict = {}
-  salary_line = lines[3]
-  salary_val = salary_line.strip("\n").strip("salary is ")
   logger.info(f"attempting to generate JSON salary file for {url} using ChatGPT API")
   try:
-    json_file_path = generate_salary_json_file(posting_ind, salary_val)
+    json_file_path = generate_salary_json_file(posting_ind, file_contents)
     logger.info(f"Successfully created JSON salary file at {json_file_path} relative to the working directory of the container")
   except Exception as e:
     logger.error(f"Encountered error {e} when trying to generate JSON salary file")
