@@ -9,6 +9,7 @@ import pandas as pd
 import joblib
 from bs4 import BeautifulSoup
 import multiprocessing
+from multiprocessing import Process, shared_memory
 import io
 import zipfile
 import csv
@@ -25,6 +26,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import parallel_backend
 import math
+import matplotlib.pyplot as plt
+from crewai import Agent, Task, Crew
+import pdb
+import time
+
 
 # Configure the logging
 logging.basicConfig(
@@ -280,7 +286,7 @@ def generate_prediction(url):
             X_test_tfidf_df = pd.DataFrame(X_test_tfidf.toarray(), columns=tfidf_vect.get_feature_names_out())
             logger.info("transformed the matrix into a dataframe")
             #Create DataFrame excluding 'posting_text' column
-            new_df = pd.DataFrame({key: [value] for key, value in datapoint.items() if key != 'posting_text'})
+            new_df = pd.DataFrame({key: [value] for key, value in datapoint.items() if key not in ['posting_text', 'req_quals']})
             X_test = pd.concat([new_df, X_test_tfidf_df], axis=1)
             logger.info("concatenated original columns minus posting_text with TFIDF dataframe")
             prediction = model.predict(X_test)
@@ -413,6 +419,9 @@ def append_datapoint(data: dict):
     logger.info("Append datapoint endpoint called")
     datapoint_dict = generate_dataset_input(data['url'])
     datapoint_dict['rating'] = int(data['rating'])
+    req_quals = extract_skills(datapoint_dict['posting_text'])
+    datapoint_dict['req_quals'] = req_quals
+    update_embeddings(req_quals)
     logger.info("successfully scraped and generated dataset input")
 
     # Create a new DataFrame with the new row
@@ -503,6 +512,9 @@ def train_rfc(dataset_path, evaluate=True):
 
     joblib.dump(model, 'app/user_data/models/rf_clf.joblib')
     logger.info("saved new Random Forest model to 'app/user_data/models/rf_clf.joblib'")
+
+    # Save column names to a CSV file
+    pd.DataFrame(X_train.columns).to_csv('app/user_data/models/column_names.csv', index=False, header=False)
 
     if evaluate:
       results = evaluate_rfc_performance(model, X_train, y_train)
@@ -650,3 +662,428 @@ async def download_all():
 
     # Return the in-memory byte stream as a StreamingResponse with the appropriate media type
     return StreamingResponse(io.BytesIO(zip_data.read()), media_type="application/zip", headers={"Content-Disposition": content_disposition})
+
+
+# Function to show feature importances
+def plot_feature_importances():
+    # Load the model
+    model = joblib.load('app/user_data/models/rf_clf.joblib')
+
+    # Load feature names
+    column_names = pd.read_csv('app/user_data/models/column_names.csv', header=None)[0].tolist()
+
+    # Get feature importances
+    importances = model.feature_importances_
+    indices = np.argsort(importances)[::-1]
+    top_n = 30  # Select top 10 features
+
+    # Plotting
+    plt.figure(figsize=(14, 3))
+    plt.title("Feature Importances")
+    plt.bar(range(top_n), importances[indices][:top_n], align="center")
+    plt.xticks(range(top_n), [column_names[i] for i in indices[:top_n]], rotation=45, ha="right")
+    plt.tight_layout()
+
+    # Save the plot to a static directory
+    plot_file = 'static/feature_importances.png'  # Adjust path as needed
+    plt.savefig(plot_file)
+    plt.close()
+
+    return plot_file
+
+@app.get("/feature-importances")
+async def get_feature_importances():
+    print("get feature importances endpoint triggered")
+    plt_path = plot_feature_importances()
+    return {'plt_path': plt_path}
+
+
+os.environ["OPENAI_API_BASE"] = 'https://api.groq.com/openai/v1'
+os.environ["OPENAI_MODEL_NAME"] = 'llama3-70b-8192'
+os.environ["OPENAI_API_KEY"] = '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'
+
+extractor = Agent(
+    role = "qualifications extractor",
+    goal = "extract required qualifications from the job posting and return as a list with a predictable format",
+    backstory = "You are an AI assistant whose job is to extract all required qualifications from job postings and return them as a list, with each item separated by a new line character. Each item should be a phrase of no more than 5 words. Please summarize the required qualifications as fully as you can with minimal redundancy.",
+    verbose = True,
+    allow_delegation = False
+)
+
+import torch
+import torch.nn.functional as F
+from torch import Tensor
+from transformers import AutoTokenizer, AutoModel
+from sklearn.cluster import KMeans
+from sklearn.model_selection import train_test_split
+from collections import Counter, defaultdict
+from statistics import mode
+
+if "gte_model" or "gte_tokenizer" not in os.listdir("app/user_data/models/"):
+    gte_tokenizer = AutoTokenizer.from_pretrained("thenlper/gte-large")
+    gte_model = AutoModel.from_pretrained("thenlper/gte-large")
+    # Save the tokenizer and model using save_pretrained
+    gte_tokenizer.save_pretrained('app/user_data/models/gte_tokenizer')
+    gte_model.save_pretrained('app/user_data/models/gte_model')
+
+else:
+    gte_tokenizer = AutoTokenizer.from_pretrained('app/user_data/models/gte_tokenizer')
+    gte_model = AutoModel.from_pretrained('app/user_data/models/gte_model')
+
+#gte_model = joblib.load('app/user_data/models/gte_model.joblib')
+#gte_tokenizer = joblib.load('app/user_data/models/gte_tokenizer.joblib')
+
+def average_pool(last_hidden_states: Tensor,
+                 attention_mask: Tensor) -> Tensor:
+    last_hidden = last_hidden_states.masked_fill(~attention_mask[..., None].bool(), 0.0)
+    return last_hidden.sum(dim=1) / attention_mask.sum(dim=1)[..., None]
+
+""" def extract_quals_worker(df_shared_mem_name, shape, dtype, start_idx, end_idx, process_id):
+    # Access the shared memory
+    existing_shm = shared_memory.SharedMemory(name=df_shared_mem_name)
+    np_array = np.ndarray(shape, dtype=dtype, buffer=existing_shm.buf)
+
+    # Modify the DataFrame slice
+    df_cols = ['posting_text', 'rating', 'min_salary', 'max_salary', 'req_quals']
+    df_slice = pd.DataFrame(np_array[start_idx:end_idx], columns=df_cols)
+
+    for row in df_slice.itertuples(index=True, name='Pandas'):
+        posting_text = row.posting_text
+        
+        extract_quals = Task(
+            description = f"Extract required skills from the following job posting:\n\n'{posting_text}'",
+            agent = extractor,
+            expected_output = "Here is an example output: '3+ years experience embedded C\nExperience writing unit tests\n1+ year experience technical lead'",
+        )
+
+        crew = Crew(
+            agents = [extractor],
+            tasks = [extract_quals],
+            verbose = 2
+        )
+
+        while True:
+            try:
+                result = crew.kickoff()
+                break
+            except Exception as e:
+                print(e)
+                print(e.args)
+        
+        req_quals = result.split("\n")
+        print(f"Debug: req_quals for row {row.Index}: {req_quals}")
+        
+        df_slice.at[row.Index, 'req_quals'] = req_quals
+
+    # Copy back the changes to the shared array
+    np_array[start_idx:end_idx] = df_slice.to_numpy()
+    
+    # Close the shared memory
+    existing_shm.close() """
+
+def extract_skills(posting_text):
+    extract_quals = Task(
+        description = f"Extract required skills from the following job posting:\n\n'{posting_text}'",
+        agent = extractor,
+        expected_output = "Here is an example output: '3+ years experience embedded C\nExperience writing unit tests\n1+ year experience technical lead'",
+    )
+
+    crew = Crew(
+        agents = [extractor],
+        tasks = [extract_quals],
+        verbose = 2
+    )
+    
+    while True:
+        try:
+            result = crew.kickoff()
+            break
+        except Exception as e:
+            print(e)
+            print(e.args)
+
+    req_quals = result.split("\n")
+    print(f"Debug: req_quals for row {row.Index}: {req_quals}")
+
+    return req_quals
+
+def update_embeddings(req_quals):
+    # Load the embeddings (from PyTorch tensor)
+    embeddings = torch.load('app/user_data/models/embeddings.pt')
+    embeddings_list = []
+    batch_size = 32 # Adjust this to a value that works within your memory constraints
+    len_all = len(req_quals)
+    print(f"req_quals size is {len_all}")
+    for i in range(0, len_all, batch_size):
+        print(f"iter is {i}")
+        batch_phrases = req_quals[i:i + batch_size]
+        print(batch_phrases)
+        batch_dict = gte_tokenizer(batch_phrases, max_length=512, padding=True, truncation=True, return_tensors='pt')
+        with torch.no_grad():  # Disable gradient tracking
+            outputs = gte_model(**batch_dict)
+        embeddings = torch.cat((embeddings, average_pool(outputs.last_hidden_state, batch_dict['attention_mask'])), dim=0)
+
+    print("Saving embeddings tensor")
+    torch.save(embeddings, "app/user_data/models/embeddings.pt")
+
+def top_quals_analysis():
+    df = pd.read_csv("app/user_data/dataset/myDataset.csv")
+    import ast
+    df['req_quals'] = df['req_quals'].apply(ast.literal_eval)
+    row_labels = []
+    for row in df.itertuples(index=True, name='Pandas'):
+        req_quals = row.req_quals
+        for phrase in req_quals:
+            row_labels.append(row.Index)
+    
+    print("generated row labels")
+
+    # Flatten the lists of phrases into a single list
+    all_phrases = [phrase for sublist in df['req_quals'] for phrase in sublist]
+    '''
+    print("about to go through gte tokenizer")
+    batch_dict = gte_tokenizer(all_phrases, max_length=512, padding=True, truncation=True, return_tensors='pt')
+    print("done with gte tokenizer")
+    outputs = gte_model(**batch_dict)
+    print("generated outputs")
+    embeddings = average_pool(outputs.last_hidden_state, batch_dict['attention_mask'])
+    print("got through average pool")'''
+
+    embeddings = torch.load('app/user_data/models/embeddings.pt')
+    
+    # (Optionally) normalize embeddings
+    embeddings = F.normalize(embeddings, p=2, dim=1)
+    print("got through normalization")
+
+    # we need to think about how many clusters we want in our phrase embedding space
+    # 1 < N < 1000
+    # N=500?
+    # we can always change N
+
+    kmeans = KMeans(n_clusters=500, random_state=57)
+    print("fitting embeddings to K Means")
+    kmeans.fit(embeddings)
+    print("done fitting embeddings to K Means")
+    # 1. Save the KMeans model with joblib
+    print("Saving KMeans model")
+    joblib.dump(kmeans, 'app/user_data/models/kmeans_model.joblib')
+    #centroids = kmeans.cluster_centers_
+    cluster_labels = kmeans.labels_
+
+    # Step 1: Group embeddings by their cluster labels
+    cluster_members_dict = defaultdict(list)
+    embeddings_list = embeddings.tolist()
+    for label, embedding in zip(cluster_labels, embeddings_list):
+        cluster_members_dict[label].append(embedding)  # Keep embeddings as lists or arrays
+        
+    data = {'phrase': all_phrases, 'row_label': row_labels, 'cluster_label': cluster_labels}
+    #pdb.set_trace()
+    clusters_df = pd.DataFrame(data)
+
+    # Create the qual_clusters column if it doesn't exist
+    if 'qual_clusters' not in df.columns:
+        df['qual_clusters'] = [[] for _ in range(len(df))]
+    
+    print("created clusters dataframe")
+    cluster_score_dict = {}
+    for row in df.itertuples(index=True, name='Pandas'):
+        clusters_in_row = clusters_df.loc[clusters_df['row_label'] == row.Index, 'cluster_label'].tolist()
+        # Generate value counts
+        df.at[row.Index, 'qual_clusters'] = clusters_in_row
+        for cluster in set(clusters_in_row): # we just want to look at unique cluster numbers per row
+            if cluster not in cluster_score_dict.keys():
+                cluster_score_dict[cluster] = row.rating 
+            else:
+                cluster_score_dict[cluster] += row.rating
+    clusters_ranked = sorted(cluster_score_dict.items(), key=lambda item: item[1], reverse=True)
+    top_10_cluster_scores = clusters_ranked[:10]
+    # Extract the keys from the top n items
+    top_10_clusters = [item[0] for item in top_10_cluster_scores]
+
+    # Step 2: Calculate the mode embedding for each cluster
+    top_10_cluster_modes = {}
+    top_10_cluster_phrases = {}
+    # Subset the cluster_member_dict
+    top_10_dict = {key: cluster_members_dict[key] for key in top_10_clusters if key in cluster_members_dict}
+    for label, embeddings in top_10_dict.items():
+        try:
+            # Use scipy.stats.mode to find the mode along axis 0
+            mode_embedding = np.apply_along_axis(lambda x: np.bincount(x).argmax(), axis=0, arr=embeddings)
+            top_10_cluster_modes[label] = mode_embedding
+            # Find indices of embeddings equal to embedding_to_find
+            indices = [index for index, emb in enumerate(embeddings_list) if emb == mode_embedding]
+            top_10_cluster_phrases[label] = all_phrases[indices[0]]
+        except Exception as e:
+            print(e)
+            # Handle case where there's no unique mode (e.g., all unique embeddings)
+            cluster_emb_rep = embeddings[0] #representative embedding
+            top_10_cluster_modes[label] = cluster_emb_rep
+            indices = [index for index, emb in enumerate(embeddings_list) if emb == cluster_emb_rep]
+            top_10_cluster_phrases[label] = all_phrases[indices[0]]
+
+    top_10_phrase_scores = {}
+
+    for item in top_10_cluster_scores:
+        # Get the corresponding phrase from top_10_cluster_phrases using the cluster_label
+        phrase = top_10_cluster_phrases[item[0]]
+    
+        # Get the score corresponding to the cluster_label from top_10_cluster_scores
+        score = item[1]
+    
+        # Map the phrase to the score in the phrase_to_score dictionary
+        top_10_phrase_scores[phrase] = score
+
+    print("done getting top 10 phrase scores")  
+
+    return top_10_phrase_scores
+
+""" def top_quals_analysis_multiproc():
+    df = pd.read_csv("app/user_data/dataset/myDataset.csv")
+    row_labels = []
+
+    # Ensure the new column 'req_quals' exists with default empty lists
+    df['req_quals'] = [[] for _ in range(len(df))]
+    # Convert DataFrame to a NumPy array
+    np_array = df.to_numpy()
+
+    # Create shared memory
+    shm = shared_memory.SharedMemory(create=True, size=np_array.nbytes)
+    shm_np_array = np.ndarray(np_array.shape, dtype=np_array.dtype, buffer=shm.buf)
+    np.copyto(shm_np_array, np_array)
+
+    # Define process ranges
+    num_processes = multiprocessing.cpu_count()
+    rows_per_process = len(df) // num_processes
+    processes = []
+
+    for i in range(num_processes):
+        start_idx = i * rows_per_process
+        end_idx = (i + 1) * rows_per_process if i != num_processes - 1 else len(df)
+        p = Process(target=extract_quals_worker, args=(shm.name, np_array.shape, np_array.dtype, start_idx, end_idx, i+1))
+        processes.append(p)
+        p.start()
+
+    # Wait for all processes to finish
+    for p in processes:
+        p.join()
+
+    # Read the modified shared memory into a DataFrame
+    new_df = pd.DataFrame(shm_np_array, columns=df.columns)
+
+    new_df.to_csv('app/user_data/dataset/skillsExtractedDataset.csv', index=False)
+    
+    # Clean up shared memory
+    shm.close()
+    shm.unlink()
+    
+    logger.info("Qualifications Extraction Complete")
+
+    for row in new_df.itertuples(index=True, name='Pandas'):
+        req_quals = row.req_quals
+        for phrase in req_quals:
+            row_labels.append(row.Index)
+
+    # Flatten the lists of phrases into a single list
+    all_phrases = [phrase for sublist in new_df['req_quals'] for phrase in sublist]
+    
+    batch_dict = tokenizer(all_phrases, max_length=512, padding=True, truncation=True, return_tensors='pt')
+    outputs = model(**batch_dict)
+    embeddings = average_pool(outputs.last_hidden_state, batch_dict['attention_mask'])
+
+    # (Optionally) normalize embeddings
+    embeddings = F.normalize(embeddings, p=2, dim=1)
+
+    # we need to think about how many clusters we want in our phrase embedding space
+    # 1 < N < 1000
+    # N=500?
+    # we can always change N
+
+    kmeans = KMeans(n_clusters=500, random_state=57)
+    kmeans.fit(embeddings)
+    #centroids = kmeans.cluster_centers_
+    cluster_labels = kmeans.labels_
+
+    # Step 1: Group embeddings by their cluster labels
+    cluster_members_dict = defaultdict(list)
+    embeddings_list = embeddings.tolist()
+    for label, embedding in zip(cluster_labels, embeddings_list):
+        cluster_members_dict[label].append(embedding)  # Keep embeddings as lists or arrays
+        
+    data = {'phrase': all_phrases, 'row_label':` row_labels, 'cluster_label': cluster_labels}
+    clusters_df = pd.DataFrame(data)
+
+    cluster_score_dict = {}
+    for row in new_df.itertuples(index=True, name='Pandas'):
+        clusters_in_row = clusters_df.loc[clusters_df['row_label'] == row.Index, 'cluster_label'].tolist()
+        # Generate value counts
+        new_df.loc[row.Index, 'qual_clusters'] = clusters_in_row
+        for cluster in set(clusters_in_row): # we just want to look at unique cluster numbers per row
+            if cluster not in cluster_score_dict.keys():
+                cluster_score_dict[cluster] = row.rating 
+            else:
+                cluster_score_dict[cluster] += row.rating
+    clusters_ranked = sorted(dictionary.items(), key=lambda item: item[1], reverse=True)
+    top_10_cluster_scores = clusters_ranked[:10]
+    # Extract the keys from the top n items
+    top_10_clusters = [item[0] for item in top_10_cluster_scores]
+
+    # Step 2: Calculate the mode embedding for each cluster
+    top_10_cluster_modes = {}
+    top_10_cluster_phrases = {}
+    # Subset the cluster_member_dict
+    top_10_dict = {key: cluster_members_dict[key] for key in top_10_clusters if key in cluster_members_dict}
+    for label, embeddings in top_10_dict.items():
+        try:
+            # Use scipy.stats.mode to find the mode along axis 0
+            mode_embedding = mode(embeddings, axis=0).mode[0]
+            top_10_cluster_modes[label] = mode_embedding
+            # Find indices of embeddings equal to embedding_to_find
+            indices = [index for index, emb in enumerate(embeddings_list) if emb == mode_embedding]
+            top_10_cluster_phrases[label] = all_phrases[indices[0]]
+        except StatisticsError:
+            # Handle case where there's no unique mode (e.g., all unique embeddings)
+            cluster_emb_rep = embeddings[0] #representative embedding
+            top_10_cluster_modes[label] = cluster_emb_rep
+            indices = [index for index, emb in enumerate(embeddings_list) if emb == cluster_emb_rep]
+            top_10_cluster_phrases[label] = all_phrases[indices[0]]
+
+    top_10_phrase_scores = {}
+
+    for cluster_label in top_10_cluster_scores.keys():
+        # Get the corresponding phrase from top_10_cluster_phrases using the cluster_label
+        phrase = top_10_cluster_phrases[cluster_label]
+    
+        # Get the score corresponding to the cluster_label from top_10_cluster_scores
+        score = top_10_cluster_scores[cluster_label]
+    
+        # Map the phrase to the score in the phrase_to_score dictionary
+        top_10_phrase_scores[phrase] = score
+
+    return top_10_phrase_scores """
+
+@app.post("/insights")
+async def get_insights():
+    print("get insights endpoint triggered")
+    top_10_phrase_scores = top_quals_analysis()
+    print(top_10_phrase_scores)
+    #return {"message": "success"}
+    return top_10_phrase_scores
+
+
+
+
+
+
+    
+
+
+
+
+
+    
+
+
+    
+
+
+    

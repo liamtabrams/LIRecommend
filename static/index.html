@@ -33,7 +33,7 @@
             min-width: 300px; /* Ensure containers don't get too narrow */
         }
         .left-container {
-            margin-top: 25px; 
+            margin-top: 35px; 
         }
         .right-container {
             display: flex;
@@ -85,7 +85,7 @@
             justify-content: center;
             align-items: center;
         }
-        .home-link, .collect-data-link {
+        .home-link, .collect-data-link, .insights-link {
             position: absolute;
             left: 10px;
             font-size: 14px;
@@ -95,6 +95,9 @@
         }
         .collect-data-link {
             top: 40px;
+        }
+        .insights-link {
+            top: 70px;
         }
         a {
             text-decoration: none;
@@ -227,6 +230,7 @@
 <body>
     <a href="/static/landing_page.html" class="home-link">Home</a>
     <a href="/static/collect_data.html" class="collect-data-link">View Dataset and Model Details</a>
+    <a href="/static/insights.html" class="insights-link">View Insights</a>
     <div class="main-container">
         <div class="left-container">
             <div class="form-container">

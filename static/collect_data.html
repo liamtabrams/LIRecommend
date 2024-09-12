@@ -106,7 +106,7 @@
             background-color: #f2f2f2;
             z-index: 100;
         }
-        .home-link, .predict-link {
+        .home-link, .predict-link, .insights-link {
             position: fixed;
             left: 10px;
             font-size: 14px;
@@ -116,6 +116,9 @@
         }
         .predict-link {
             top: 40px; /* Positioning the Predict link under Home link */
+        }
+        .insights-link {
+            top: 70px; /* Positioning the Insights link under Recommend link */
         }
         .dataset-section {
             width: 90%;
@@ -212,6 +215,7 @@
 <body>
     <a href="/static/landing_page.html" class="home-link">Home</a>
     <a href="/static/index.html" class="predict-link">Recommend</a>
+    <a href="/static/insights.html" class="insights-link">View Insights</a>
     <div class="main-container">
         <div class="left-container">
             <h2>Append to Dataset</h2>
